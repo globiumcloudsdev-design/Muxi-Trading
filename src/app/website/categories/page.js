@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Search, Sparkles, Layers3 } from 'lucide-react';
 import WebsiteLayout from '../components/layout/WebsiteLayout';
@@ -9,7 +9,8 @@ import { FadeIn, ScaleIn } from '../components/ui/animations.js';
 import CategoryCard from '../components/ui/CategoryCard';
 import Loader from '@/components/common/Loader';
 
-export default function CategoriesPage() {
+
+function CategoriesPageContent() {
   const searchParams = useSearchParams();
   const [categories, setCategories] = useState([]);
   const [search, setSearch] = useState('');
@@ -46,7 +47,7 @@ export default function CategoriesPage() {
   }, [categories, search]);
 
   return (
-    <WebsiteLayout>
+    <>
       <section className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_10%_15%,rgba(59,130,246,0.12),transparent_28%),radial-gradient(circle_at_90%_12%,rgba(14,165,233,0.12),transparent_24%),linear-gradient(180deg,#f8fbff_0%,#ffffff_45%,#f1f5f9_100%)] pt-32 pb-24">
         <div className="pointer-events-none absolute inset-0" aria-hidden="true">
           <div className="absolute -left-12 top-28 h-56 w-56 rounded-full border border-blue-200/60 bg-blue-200/20 blur-2xl animate-float" />
@@ -130,6 +131,16 @@ export default function CategoriesPage() {
           )}
         </Container>
       </section>
+    </>
+  );
+}
+
+export default function CategoriesPage() {
+  return (
+    <WebsiteLayout>
+      <Suspense>
+        <CategoriesPageContent />
+      </Suspense>
     </WebsiteLayout>
   );
 }
