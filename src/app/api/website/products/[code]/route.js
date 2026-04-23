@@ -28,6 +28,8 @@ export async function GET(request, { params }) {
       categorySlug: item.category?.slug,
       categoryName: item.category?.name,
       packSize: item.packSize || `${item.stock || 0} units`,
+      price: item.price || 0,
+      showPrice: item.showPrice === false ? false : true,
       image: item.thumbnail?.url || item.images?.[0]?.url || null,
       gallery: [item.thumbnail?.url, ...(item.images || []).map((img) => img.url)].filter(Boolean),
       description: item.description || '',

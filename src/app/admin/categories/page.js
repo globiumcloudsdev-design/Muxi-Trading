@@ -70,7 +70,14 @@ export default function CategoriesPage() {
   const columns = [
     { key: 'name', label: 'Name', className: 'font-medium' },
     { key: 'slug', label: 'Slug' },
-    { key: 'description', label: 'Description', render: (item) => (item.description || '').trim() || '-' },
+    { 
+      key: 'description', 
+      label: 'Description', 
+      render: (item) => {
+        const desc = (item.description || '').trim();
+        return desc.length > 50 ? `${desc.substring(0, 50)}...` : desc || '-';
+      }
+    },
     { key: 'isActive', label: 'Status', render: (item) => (
       <span className={`px-2 py-1 rounded-full text-xs ${
         item.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'

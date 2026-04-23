@@ -5,6 +5,13 @@ import Item from '@/models/Item';
 import cloudinary, { ITEMS_FOLDER, deleteImage } from '@/lib/cloudinary';
 import { verifyAuth } from '@/lib/auth';
 
+function parseShowPrice(value, fallback) {
+  if (value === null || value === undefined) {
+    return fallback;
+  }
+  return value === true || value === 'true';
+}
+
 async function uploadFile(file, folder) {
   const buffer = Buffer.from(await file.arrayBuffer());
 
@@ -85,6 +92,7 @@ export async function PUT(request, { params }) {
     const brand = formData.get('brand');
     const description = formData.get('description');
     const isActive = formData.get('isActive');
+    const showPrice = formData.get('showPrice');
     const thumbnailFile = formData.get('thumbnail');
     const imagesFiles = formData.getAll('images').filter(Boolean);
     const removedImagesStr = formData.get('removedImages');
@@ -100,6 +108,7 @@ export async function PUT(request, { params }) {
       brand: brand !== null ? brand : existingItem.brand,
       description: description !== null ? description : existingItem.description,
       isActive: isActive !== null ? isActive === 'true' : existingItem.isActive,
+      showPrice: parseShowPrice(showPrice, existingItem.showPrice),
     };
 
     if (thumbnailFile && typeof thumbnailFile.arrayBuffer === 'function') {

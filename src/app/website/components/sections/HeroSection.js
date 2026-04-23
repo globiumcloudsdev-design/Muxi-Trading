@@ -44,7 +44,7 @@ const heroStats = [
 
 export default function HeroSection() {
   return (
-    <section className="relative overflow-hidden pt-32 pb-24">
+    <section className="relative overflow-hidden pt-20 pb-10">
       <div className="absolute inset-0" aria-hidden="true">
         <Image
           src="/herosection.png"
@@ -97,11 +97,11 @@ export default function HeroSection() {
             </div>
           </div>
 
-          <div className="relative min-h-[560px] animate-fade-in-up stagger-2">
+          <div className="relative min-h-[460px] animate-fade-in-up stagger-2">
             <div className="absolute inset-0 rounded-[2rem]  shadow-[0_30px_80px_rgba(2,6,23,0.4)]" />
             <div className="absolute inset-0 rounded-[2rem] bg-[radial-gradient(circle_at_center,_rgba(255,255,255,0.14),_transparent_55%)] opacity-70" />
 
-            <div className="absolute left-1/2 top-1/2 w-[85%] -translate-x-1/2 -translate-y-[40%]">
+            <div className="absolute left-1/2 top-1/2 w-[85%] -translate-x-1/2 -translate-y-[45%]">
               <div className="relative mx-auto h-[330px] w-full max-w-[520px]">
                 <div className="absolute inset-x-8 bottom-4 h-10 rounded-full bg-cyan-400/20 blur-2xl animate-pulse-glow" aria-hidden="true" />
 

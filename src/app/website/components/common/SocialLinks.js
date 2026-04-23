@@ -1,8 +1,12 @@
-import { Users, Image, MessageCircle } from 'lucide-react';
+
+import { MessageCircle } from 'lucide-react';
+
+import { FaFacebook, FaInstagram } from 'react-icons/fa';
+import { MessageCircle } from 'lucide-react';
 
 const socialLinks = [
-  { icon: Users, href: 'https://www.facebook.com/globiumclouds/', label: 'Facebook' },
-  { icon: Image, href: 'https://www.instagram.com/explore/locations/202412828462806/globium-clouds/', label: 'Instagram' },
+  { icon: FaFacebook, href: 'https://www.facebook.com/globiumclouds/', label: 'Facebook' },
+  { icon: FaInstagram, href: 'https://www.instagram.com/explore/locations/202412828462806/globium-clouds/', label: 'Instagram' },
   { icon: MessageCircle, href: 'https://wa.me/923352778488', label: 'WhatsApp' },
 ];
 
@@ -12,7 +16,7 @@ export default function SocialLinks({ className = '' }) {
       {socialLinks.map((social) => {
         const Icon = social.icon;
         return (
-          <a
+            <a
             key={social.label}
             href={social.href}
             target="_blank"
@@ -20,7 +24,7 @@ export default function SocialLinks({ className = '' }) {
             className="text-gray-400 hover:text-white transition-colors"
             aria-label={social.label}
           >
-            <Icon className="h-5 w-5" />
+            <Icon size={20} />
           </a>
         );
       })}

@@ -34,7 +34,7 @@ const contactInfo = [
 
 export default function ContactSection() {
   return (
-    <section className="py-24 bg-gradient-to-b from-white to-slate-50 relative" id="contact-us">
+    <section className="py-24 bg-gradient-to-b from-white to-slate-50 relative scroll-mt-28" id="contact-us">
       <Container>
         <FadeIn direction="up" duration={0.8}>
           <div className="text-center mb-16">

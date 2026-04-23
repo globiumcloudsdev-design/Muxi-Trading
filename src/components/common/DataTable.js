@@ -1,7 +1,7 @@
 'use client';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Eye, Pencil, Trash2 } from 'lucide-react';
 import EmptyState from './EmptyState';
 
 export default function DataTable({ 
@@ -9,6 +9,7 @@ export default function DataTable({
   columns, 
   onEdit, 
   onDelete, 
+  onView,
   actions = true,
   pagination = null 
 }) {
@@ -31,6 +32,15 @@ export default function DataTable({
       onEdit(item);
     } else {
       console.warn('onEdit function is not provided');
+    }
+  };
+
+  const handleView = (item) => {
+    console.log('View clicked for:', item);
+    if (onView) {
+      onView(item);
+    } else {
+      console.warn('onView function is not provided');
     }
   };
 
@@ -59,6 +69,16 @@ export default function DataTable({
             {actions && (
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
+                  {onView && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => handleView(item)}
+                      type="button"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  )}
                   {onEdit && (
                     <Button 
                       variant="ghost" 

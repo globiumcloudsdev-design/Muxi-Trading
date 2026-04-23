@@ -1,7 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Menu, X, User, Search } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { Menu, X, User, Search, Phone, Mail, MapPin, Clock } from 'lucide-react';
 import Image from 'next/image';
 import Container from './Container';
 import Button from '../ui/Button';
@@ -9,13 +10,16 @@ import Button from '../ui/Button';
 const navItems = [
   { name: 'Home', href: '/' },
   { name: 'Categories', href: '/website/categories' },
-  { name: 'About Us', href: '/#about-us' },
-  { name: 'Contact', href: '/#contact-us' },
+  { name: 'About Us', href: '/website/about' },
+{ name: 'Contact', href: '/website/contact' },
+
 ];
+
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
@@ -67,16 +71,35 @@ export default function Header() {
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-1">
             <nav className="flex items-center gap-1">
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="relative px-4 py-2.5 rounded-full font-medium text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50/80 transition-all duration-200 group"
-                >
-                  {item.name}
-                  <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full group-hover:w-3/4 transition-all duration-300" />
-                </Link>
-              ))}
+{navItems.map((item) => {
+                const isContactOnHome = item.name === 'Contact' && pathname === '/website';
+                return (
+                  <button
+                    key={item.name}
+                    onClick={(e) => {
+                      if (isContactOnHome) {
+                        e.preventDefault();
+                        document.getElementById('contact-us')?.scrollIntoView({ 
+                          behavior: 'smooth', 
+                          block: 'start' 
+                        });
+                      } else {
+                        window.location.href = item.href;
+                      }
+                    }}
+                    className={`relative px-4 py-2.5 rounded-full font-medium text-sm transition-all duration-300 group bg-transparent border-none cursor-pointer ${
+                      pathname === item.href || pathname.startsWith(item.href + (item.href.endsWith('/') ? '' : '/')) 
+                    }`}
+                  >
+                    {item.name}
+                    <span className={`absolute -bottom-0.5 left-1/2 -translate-x-1/2 rounded-full transition-all duration-300 ${
+                      pathname === item.href || pathname.startsWith(item.href + (item.href.endsWith('/') ? '' : '/')) 
+? 'w-0 h-0 bg-transparent' 
+                        : 'w-0 h-0.5 bg-blue-500/60 group-hover:w-full'
+                    }`} />
+                  </button>
+                );
+              })}
             </nav>
           </div>
 
@@ -152,6 +175,8 @@ href="https://wa.me/923352778488?text=Hello%20MUXI%20Trading%2C%20I%20need%20a%2
           </div>
         </div>
 
+  
+
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
           <div className="lg:hidden absolute top-full left-0 w-full">
@@ -170,19 +195,35 @@ href="https://wa.me/923352778488?text=Hello%20MUXI%20Trading%2C%20I%20need%20a%2
                   />
                 </div> */}
                 
-                {navItems.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center justify-between py-3.5 px-4 rounded-xl text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 font-medium transition-all duration-200 hover:translate-x-1"
-                  >
-                    {item.name}
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </Link>
-                ))}
+{navItems.map((item) => {
+                  const isContactOnHome = item.name === 'Contact' && pathname === '/website';
+                  return (
+                    <button
+                      key={item.name}
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        if (isContactOnHome) {
+                          document.getElementById('contact-us')?.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'start' 
+                          });
+                        } else {
+                          window.location.href = item.href;
+                        }
+                      }}
+                      className={`flex items-center justify-between py-3.5 px-4 rounded-xl font-medium transition-all duration-200 w-full text-left ${
+                        pathname === item.href || pathname.startsWith(item.href + (item.href.endsWith('/') ? '' : '/')) 
+                          ? 'bg-blue-50/50 text-blue-700 border border-blue-400 shadow-md shadow-blue-200/50 translate-x-1' 
+                          : 'text-gray-700 hover:bg-blue-50 hover:translate-x-1 hover:shadow-md'
+                      }`}
+                    >
+                      {item.name}
+                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  );
+                })}
                 <div className="pt-4 border-t border-gray-100 space-y-3">
                   <Link
                     href="/auth/login"

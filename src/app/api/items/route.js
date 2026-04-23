@@ -107,6 +107,7 @@ export async function POST(req) {
     const packSize = formData.get('packSize');
     const brand = formData.get('brand');
     const description = formData.get('description');
+    const showPrice = formData.get('showPrice');
 
     const thumbnailFile = formData.get('thumbnail');
     const imagesFiles = formData.getAll('images');
@@ -130,6 +131,7 @@ export async function POST(req) {
       packSize,
       brand,
       description,
+      showPrice: showPrice === 'false' ? false : true,
       thumbnail,
       images,
     });

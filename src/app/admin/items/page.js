@@ -22,6 +22,8 @@ export default function ItemsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [viewItem, setViewItem] = useState(null);
   const [message, setMessage] = useState('');
 
   // Fetch Items
@@ -79,6 +81,11 @@ export default function ItemsPage() {
   const showMessage = (msg) => {
     setMessage(msg);
     setTimeout(() => setMessage(''), 3000);
+  };
+
+  const formatPKR = (value) => {
+    const numeric = Number(value || 0);
+    return `PKR ${numeric.toLocaleString('en-PK')}`;
   };
 
   // Create / Update Item
@@ -141,6 +148,75 @@ export default function ItemsPage() {
     }
   };
 
+  // Quick Stock Update
+  const handleUpdateStock = async (item, change) => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const newStock = Math.max(0, (item.stock || 0) + change);
+      
+      const formData = new FormData();
+      formData.append('stock', newStock);
+
+      const res = await fetch(API.items.update(item._id), {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setItems(prevItems => 
+          prevItems.map(i => i._id === item._id ? { ...i, stock: newStock } : i)
+        );
+      } else {
+        showMessage(data.error || 'Stock update failed');
+      }
+    } catch (err) {
+      console.error(err);
+      showMessage('Stock update failed');
+    }
+  };
+
+  const handleTogglePriceVisibility = async (item) => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const currentVisibility = item.showPrice !== false;
+      const nextVisibility = !currentVisibility;
+      const formData = new FormData();
+      formData.append('showPrice', String(nextVisibility));
+
+      const res = await fetch(API.items.update(item._id), {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setItems((prevItems) =>
+          prevItems.map((i) =>
+            i._id === item._id
+              ? { ...i, showPrice: data.data?.showPrice === false ? false : true }
+              : i
+          )
+        );
+        showMessage(`Price visibility ${nextVisibility ? 'shown' : 'hidden'}!`);
+      } else {
+        showMessage(data.error || 'Price visibility update failed');
+      }
+
+    } catch (err) {
+      console.error(err);
+      showMessage('Price visibility update failed');
+    }
+  };
+
+  const handleView = (item) => {
+    setViewItem(item);
+    setViewModalOpen(true);
+  };
+
   // ==================== TABLE COLUMNS WITH IMAGE ====================
   const columns = [
     {
@@ -177,16 +253,55 @@ export default function ItemsPage() {
     },
     {
       key: 'price',
-      label: 'Price (₨ PKR)',
-      render: (item) => `₨${item.price?.toLocaleString() || 0}`,
+      label: 'Price',
+      render: (item) => formatPKR(item.price),
+    },
+    {
+      key: 'showPrice',
+      label: 'Price Visibility',
+      render: (item) => (
+        (() => {
+          const isVisible = item.showPrice !== false;
+          return (
+
+        <button
+          type="button"
+          onClick={() => handleTogglePriceVisibility(item)}
+          className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors font-bold ${
+            isVisible
+              ? 'bg-green-100 text-green-800 hover:bg-green-200 border border-green-200'
+              : 'bg-red-100 text-red-800 hover:bg-red-200 border border-red-200'
+          }`}
+          title={`Click to ${isVisible ? 'hide' : 'show'} price on frontend`}
+        >
+          {isVisible ? 'Visible ✓' : 'Hidden ✗'}
+        </button>
+          );
+        })()
+
+      ),
     },
     {
       key: 'stock',
       label: 'Stock',
       render: (item) => (
-        <span className={item.stock < 10 ? 'text-red-500 font-bold' : ''}>
-          {item.stock || 0}
-        </span>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => handleUpdateStock(item, -1)}
+            className="w-6 h-6 flex items-center justify-center rounded bg-red-100 text-red-600 hover:bg-red-200 transition-colors font-bold"
+          >
+            -
+          </button>
+          <span className={`min-w-[2rem] text-center ${item.stock < 10 ? 'text-red-500 font-bold' : ''}`}>
+            {item.stock || 0}
+          </span>
+          <button
+            onClick={() => handleUpdateStock(item, 1)}
+            className="w-6 h-6 flex items-center justify-center rounded bg-green-100 text-green-600 hover:bg-green-200 transition-colors font-bold"
+          >
+            +
+          </button>
+        </div>
       )
     },
   ];
@@ -237,6 +352,7 @@ export default function ItemsPage() {
           <DataTable
             data={items}
             columns={columns}
+            onView={handleView}
             onEdit={(item) => {
               setEditingItem(item);
               setModalOpen(true);
@@ -264,6 +380,16 @@ export default function ItemsPage() {
         item={editingItem}
         categories={categories}
         onSubmit={handleSubmit}
+      />
+      <ItemModal
+        isOpen={viewModalOpen}
+        onClose={() => {
+          setViewModalOpen(false);
+          setViewItem(null);
+        }}
+        item={viewItem}
+        categories={categories}
+        isViewMode={true}
       />
 
       {/* Delete Confirm */}

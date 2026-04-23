@@ -1,1 +1,1 @@
-1. [x] Create TODO.md\n2. [x] Edit src/app/admin/categories/page.js to trim description render
+# Add Facebook and Instagram Fa Icons\n\n## Steps:\n1. [ ] Update Footer.js: Replace Lucide Facebook/Instagram with FaFacebook/FaInstagram size={20}\n2. [ ] Update SocialLinks.js: Replace Users/Image with FaFacebook/FaInstagram size={20}\n3. [ ] Test with npm run dev\n4. [ ] Mark complete\n

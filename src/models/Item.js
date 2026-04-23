@@ -61,6 +61,10 @@ images: [
       type: Boolean,
       default: true,
     },
+    showPrice: {
+      type: Boolean,
+      default: true,
+    },
   },
   {
     timestamps: true,

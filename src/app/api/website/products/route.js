@@ -46,6 +46,8 @@ export async function GET(request) {
       categorySlug: item.category?.slug,
       categoryName: item.category?.name,
       packSize: item.packSize || `${item.stock || 0} units`,
+      price: item.price || 0,
+      showPrice: item.showPrice === false ? false : true,
       image: item.thumbnail?.url || item.images?.[0]?.url || null,
       description: item.description || '',
     }));

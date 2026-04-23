@@ -108,6 +108,11 @@ export default function ProductDetailsPage() {
               <p className="text-sm font-semibold text-blue-700 mb-2">Product Code: {product.code}</p>
               <h1 className="text-3xl font-bold text-slate-900 mb-3">{product.name}</h1>
               <p className="text-slate-600 mb-2">Pack Size: {product.packSize}</p>
+              {product.showPrice && (
+                <p className="text-2xl font-bold text-blue-700 mb-4">
+                  PKR {product.price?.toLocaleString() || 0}
+                </p>
+              )}
               <p className="text-slate-600 leading-relaxed mb-6">{product.description}</p>
 
               <a

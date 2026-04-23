@@ -48,6 +48,11 @@ export default function ProductCard({ product }) {
           {product.name}
         </h3>
         <p className="text-sm text-slate-600 mb-2">Pack Size: {product.packSize}</p>
+        {product.showPrice && (
+          <p className="text-lg font-bold text-blue-700 mb-2">
+            PKR {product.price?.toLocaleString() || 0}
+          </p>
+        )}
         <p className="text-sm text-slate-500 mb-4 line-clamp-2">{product.description}</p>
       </CardContent>
       <CardFooter className="flex justify-between items-center pt-3 border-t border-slate-100">

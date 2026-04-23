@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Store, Mail, Phone, MapPin, ArrowRight } from 'lucide-react';
+import { FaFacebook, FaInstagram } from 'react-icons/fa';
 import Container from './Container';
 import Newsletter from '../common/Newsletter';
 
@@ -56,7 +57,6 @@ export default function Footer() {
               {[
                 { name: 'Home', href: '/' },
                 { name: 'Categories', href: '/website/categories' },
-                { name: 'Catalog Download', href: '/catalogs/muxi-catalog.pdf', external: true },
                 { name: 'Contact', href: '/website#contact-us' },
                 { name: 'Login', href: '/auth/login' },
               ].map((item) => (
@@ -111,7 +111,7 @@ export default function Footer() {
                 <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center group-hover:bg-purple-500/30 transition-colors">
                   <MapPin className="h-4 w-4 text-purple-400" />
                 </div>
-                <span className="group-hover:text-white transition-colors">Mumbai, India</span>
+                <span className="group-hover:text-white transition-colors">Karachi, Pakistan</span>
               </li>
             </ul>
           </div>
@@ -119,9 +119,9 @@ export default function Footer() {
           <div className="animate-fade-in-up stagger-4">
             <h3 className="font-semibold mb-5 text-white">Follow Us</h3>
             <div className="flex gap-3">
-              {[
-                { label: 'Facebook', href: 'https://www.facebook.com/globiumclouds/' },
-                { label: 'Instagram', href: 'https://www.instagram.com/explore/locations/202412828462806/globium-clouds/' },
+{[
+                { label: 'Facebook', href: 'https://www.facebook.com/globiumclouds/', icon: FaFacebook, size: 20 },
+                { label: 'Instagram', href: 'https://www.instagram.com/explore/locations/202412828462806/globium-clouds/', icon: FaInstagram, size: 20 }
               ].map((social) => (
                 <a 
                   key={social.label}
@@ -130,17 +130,16 @@ export default function Footer() {
                   rel="noreferrer"
                   className="w-9 h-9 bg-slate-800 rounded-lg flex items-center justify-center text-slate-400 hover:bg-blue-500 hover:text-white transition-all duration-300 hover:-translate-y-1"
                 >
-                  {social.label[0]}
+                  <social.icon size={social.size} />
                 </a>
               ))}
             </div>
-       
           </div>
         </div>
         
         <div className="pt-8 border-t border-slate-800 text-center">
           <p className="text-slate-500 text-sm">
-            &copy; 2026 MUXI Trading Company. All rights reserved.
+            © 2026 MUXI Trading Company. All rights reserved.
           </p>
         </div>
       </Container>

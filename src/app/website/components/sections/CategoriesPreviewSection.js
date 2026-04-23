@@ -71,16 +71,7 @@ export default function CategoriesPreviewSection({ categories = [] }) {
           })}
         </StaggerContainer>
 
-        <FadeIn direction="up" delay={600} duration={0.6}>
-          <div className="text-center mt-20">
-            <Link href="/website/categories">
-              <Button variant="outline" size="lg" className="border-slate-300 hover:border-blue-500 hover:bg-blue-50 hover-lift animate-fade-in-up stagger-8 text-lg px-8 py-6 font-semibold tracking-wide">
-                Browse All Categories
-                <ArrowRight className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
-          </div>
-        </FadeIn>
+        
       </Container>
     </section>
   );

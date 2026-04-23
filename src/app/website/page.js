@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import WebsiteLayout from './components/layout/WebsiteLayout';
 import HeroSection from './components/sections/HeroSection';
 import ProductsSection from './components/sections/ProductsSection';
+import ContactSection from './components/sections/ContactSection';
 import Loader from '@/components/common/Loader';
 
 
@@ -44,7 +45,9 @@ export default function WebsiteHome() {
   return (
     <WebsiteLayout>
       <HeroSection />
+      
       <ProductsSection products={homeData.products} categories={homeData.categories} />
+
     </WebsiteLayout>
   );
 }
