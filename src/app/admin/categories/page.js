@@ -68,6 +68,18 @@ export default function CategoriesPage() {
 
 
   const columns = [
+    {
+      key: 'image',
+      label: 'Image',
+      className: 'w-20',
+      render: (item) => (
+        <img
+          src={item.image || '/Muxi Trading Logo.png'}
+          alt={item.name}
+          className="w-10 h-10 rounded-lg object-contain border border-gray-200 bg-white p-1"
+        />
+      )
+    },
     { key: 'name', label: 'Name', className: 'font-medium' },
     { key: 'slug', label: 'Slug' },
     { 
@@ -100,14 +112,26 @@ export default function CategoriesPage() {
         url = API.categories.create;
         method = 'POST';
       }
+
+      const payload = new FormData();
+      payload.append('name', data.name || '');
+      payload.append('description', data.description || '');
+      payload.append('isActive', String(data.isActive !== false));
+
+      if (data.image instanceof File) {
+        payload.append('image', data.image);
+      }
+
+      if (data.removeImage) {
+        payload.append('removeImage', 'true');
+      }
       
       const response = await fetch(url, {
         method,
         headers: { 
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(data),
+        body: payload,
       });
       
       const result = await response.json();

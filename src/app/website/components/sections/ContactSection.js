@@ -1,6 +1,6 @@
 'use client';
 
-import { Phone, Mail, MapPin, Clock, MessageCircle, ArrowRight } from 'lucide-react';
+import { Phone, Mail, MapPin, Clock, MessageCircle, ArrowRight, Whatsapp } from 'lucide-react';
 import Container from '../layout/Container';
 import ContactForm from '../common/ContactForm';
 import { FadeIn, ScaleIn } from '../ui/animations';
@@ -21,7 +21,7 @@ const contactInfo = [
   {
     icon: MapPin,
     title: 'Address',
-    details: ['MUXI Trading Co.', '123 Business Park, Mumbai, Maharashtra'],
+    details: ['House R-84, Adjacent to Qadri Haleem', 'Near Al-Habeeb Restaurant', 'Sector 15-B / 15-A, Buffer Zone', 'Karachi, 74000, Pakistan'],
     color: 'from-orange-500 to-red-500',
   },
   {
@@ -108,6 +108,22 @@ href="https://wa.me/923352778488?text=Hello%20MUXI%20Trading%2C%20I%20want%20cat
                 );
               })}
             </div>
+
+            {/* Map */}
+            <FadeIn direction="up" delay={320} duration={0.7}>
+              <div className="rounded-2xl shadow-sm overflow-hidden border border-slate-200 mx-auto w-full max-w-2xl align-center">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d52245.245286664635!2d67.0997356!3d24.9056773!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3eb339e2a7eb1b7d%3A0x748335aa0a06c226!2sBuffer%20Zone%2C%20Karachi%2C%20Sindh%2C%20Pakistan!5e0!3m2!1sen!2s!4v1745489402525!5m2!1sen!2s"
+                  width="100%"
+                  height="280"
+                  style={{ border: 0 }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="MUXI Trading Location - Buffer Zone, Karachi"
+                />
+              </div>
+            </FadeIn>
           </div>
 
           {/* Contact Form */}

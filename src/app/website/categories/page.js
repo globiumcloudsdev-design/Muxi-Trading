@@ -49,28 +49,27 @@ function CategoriesContent() {
 
   return (
     <WebsiteLayout>
-      <section className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_10%_15%,rgba(59,130,246,0.12),transparent_28%),radial-gradient(circle_at_90%_12%,rgba(14,165,233,0.12),transparent_24%),linear-gradient(180deg,#f8fbff_0%,#ffffff_45%,#f1f5f9_100%)] pt-32 pb-24">
-        {/* ... background divs same rahenge ... */}
+      <section className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_15%_15%,rgba(59,130,246,0.14),transparent_28%),radial-gradient(circle_at_86%_10%,rgba(14,165,233,0.12),transparent_24%),linear-gradient(180deg,#eaf2ff_0%,#f8fbff_34%,#ffffff_100%)] pt-32 pb-24">
         <Container>
           <FadeIn direction="up" duration={0.75}>
-            <div className="mx-auto mb-12 max-w-4xl text-center">
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-300/50 bg-blue-50/70 px-4 py-2 text-sm font-medium text-blue-700 shadow-sm">
+            <div className="mx-auto mb-12 max-w-5xl rounded-3xl border border-white/20 bg-slate-900/90 px-6 py-12 text-center shadow-[0_25px_70px_rgba(15,23,42,0.28)] backdrop-blur md:px-12">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-cyan-200/40 bg-cyan-400/10 px-4 py-2 text-sm font-medium text-cyan-100 shadow-sm">
                 <Sparkles className="h-4 w-4" />
                 Category Discovery Hub
               </div>
-              <h1 className="text-4xl font-black leading-tight text-slate-900 md:text-5xl lg:text-6xl">
-                Explore Product Categories in a Smarter, Visual Way
+              <h1 className="text-4xl font-black leading-tight text-white md:text-5xl lg:text-6xl">
+                Explore Product Categories with Faster B2B Navigation
               </h1>
-              <p className="mx-auto mt-5 max-w-3xl text-lg leading-relaxed text-slate-600">
-                Find category-wise products quickly, compare your options, and jump into detailed listings with cleaner navigation.
+              <p className="mx-auto mt-5 max-w-3xl text-lg leading-relaxed text-slate-200">
+                Browse category-wise products, compare your options quickly, and move to detailed listings with a cleaner catalog flow.
               </p>
 
               <div className="mt-7 flex flex-wrap items-center justify-center gap-3 text-sm">
-                <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-slate-700 shadow-sm">
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-slate-100 shadow-sm">
                   <Layers3 className="h-4 w-4 text-blue-500" />
                   {filteredCategories.length} matched
                 </div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-slate-700 shadow-sm">
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-slate-100 shadow-sm">
                   <Sparkles className="h-4 w-4 text-cyan-500" />
                   {categories.length} total categories
                 </div>
@@ -106,7 +105,7 @@ function CategoriesContent() {
                   <ScaleIn key={category.slug} delay={index * 70} duration={0.55}>
                     <CategoryCard
                       category={category}
-                      href={`/website/categories/${category.slug}`}
+                      href={`/categories/${category.slug}`}
                     />
                   </ScaleIn>
                 ))}

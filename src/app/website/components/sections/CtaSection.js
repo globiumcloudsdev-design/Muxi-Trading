@@ -12,7 +12,7 @@ export default function CtaSection() {
         <p className="text-white/90 text-lg mb-8 max-w-2xl mx-auto">
           Join thousands of satisfied customers who trust MUXI Trading for their business needs.
         </p>
-        <Link href="/website/contact">
+        <Link href="/contact">
           <Button variant="secondary" size="lg">
             Contact Us Today
           </Button>

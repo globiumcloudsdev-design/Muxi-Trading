@@ -9,9 +9,9 @@ import Button from '../ui/Button';
 
 const navItems = [
   { name: 'Home', href: '/' },
-  { name: 'Categories', href: '/website/categories' },
-  { name: 'About Us', href: '/website/about' },
-{ name: 'Contact', href: '/website/contact' },
+  { name: 'Categories', href: '/categories' },
+  { name: 'About Us', href: '/about' },
+{ name: 'Contact', href: '/contact' },
 
 ];
 
@@ -31,7 +31,7 @@ export default function Header() {
   const handleSearch = (e) => {
     if (e.key === 'Enter' && searchQuery.trim()) {
       // Redirect to search or categories
-      window.location.href = `/website/categories?search=${encodeURIComponent(searchQuery)}`;
+      window.location.href = `/categories?search=${encodeURIComponent(searchQuery)}`;
     }
   };
 
@@ -72,7 +72,7 @@ export default function Header() {
           <div className="hidden lg:flex items-center gap-1">
             <nav className="flex items-center gap-1">
 {navItems.map((item) => {
-                const isContactOnHome = item.name === 'Contact' && pathname === '/website';
+                const isContactOnHome = item.name === 'Contact' && pathname === '/';
                 return (
                   <button
                     key={item.name}
@@ -196,7 +196,7 @@ href="https://wa.me/923352778488?text=Hello%20MUXI%20Trading%2C%20I%20need%20a%2
                 </div> */}
                 
 {navItems.map((item) => {
-                  const isContactOnHome = item.name === 'Contact' && pathname === '/website';
+                  const isContactOnHome = item.name === 'Contact' && pathname === '/';
                   return (
                     <button
                       key={item.name}

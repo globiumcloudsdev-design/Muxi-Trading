@@ -43,13 +43,13 @@ export default function CategoriesPreviewSection({ categories = [] }) {
               <Link 
                 key={category.slug} 
                 href={`/website/categories/${category.slug}`}
-                className="group relative bg-white/90 backdrop-blur-xl rounded-3xl p-8 border border-slate-200/50 hover:border-blue-300/70 shadow-lg hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-700 hover:-translate-y-4 hover-lift hover-glow"
+                className="group relative top-10"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-50/70 via-purple-50/40 to-indigo-50 opacity-0 group-hover:opacity-100 transition-all duration-700 rounded-3xl animate-pulse-glow" />
                 
-                <div className="relative flex items-start gap-6">
-                  <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-2xl shadow-blue-500/40 group-hover:shadow-purple-500/50 group-hover:scale-125 group-hover:rotate-6 transition-all duration-700 animate-pulse-glow">
-                    <Icon className="h-10 w-10 text-white shadow-lg" />
+                <div className="relative flex items-start gap-16">
+                  <div className=" w-15 h-15 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-2xl shadow-blue-500/40 group-hover:shadow-purple-500/50 group-hover:scale-125 group-hover:rotate-6 transition-all duration-700 animate-pulse-glow">
+                    <Icon className=" top-10 h-10 w-10 text-white shadow-lg" />
                   </div>
                   
                   <div className="flex-1 min-w-0 space-y-4">

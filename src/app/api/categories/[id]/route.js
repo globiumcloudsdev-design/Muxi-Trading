@@ -4,7 +4,22 @@ import Category from '@/models/Category';
 import Item from '@/models/Item';
 import { verifyAuth } from '@/lib/auth';
 import mongoose from 'mongoose';
+import cloudinary from '@/lib/cloudinary';
 
+const CATEGORIES_FOLDER = 'muxi-trading/categories';
+
+async function uploadCategoryImage(file) {
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  const upload = await new Promise((resolve, reject) => {
+    cloudinary.uploader.upload_stream(
+      { folder: CATEGORIES_FOLDER },
+      (err, result) => (err ? reject(err) : resolve(result))
+    ).end(buffer);
+  });
+
+  return upload.secure_url;
+}
 
 
 // ==================== DELETE CATEGORY ====================
@@ -85,8 +100,29 @@ export async function PUT(request, { params }) {
     }
 
     const { id } = await params;
-    const body = await request.json();
-    const { name, description, isActive } = body;
+    const contentType = request.headers.get('content-type') || '';
+
+    let name;
+    let description;
+    let isActive;
+    let imageFile;
+    let removeImage = false;
+
+    if (contentType.includes('multipart/form-data')) {
+      const formData = await request.formData();
+      name = formData.get('name');
+      description = formData.get('description');
+      isActive = formData.get('isActive') !== 'false';
+      imageFile = formData.get('image');
+      removeImage = formData.get('removeImage') === 'true';
+    } else {
+      const body = await request.json();
+      name = body?.name;
+      description = body?.description;
+      isActive = body?.isActive;
+      imageFile = null;
+      removeImage = body?.removeImage === true;
+    }
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
@@ -133,6 +169,11 @@ export async function PUT(request, { params }) {
     
     if (description !== undefined) updateData.description = description;
     if (isActive !== undefined) updateData.isActive = isActive;
+    if (removeImage) updateData.image = null;
+
+    if (imageFile && typeof imageFile.arrayBuffer === 'function' && imageFile.size > 0) {
+      updateData.image = await uploadCategoryImage(imageFile);
+    }
 
     const updatedCategory = await Category.findByIdAndUpdate(
       id,

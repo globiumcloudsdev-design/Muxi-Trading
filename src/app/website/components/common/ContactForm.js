@@ -83,12 +83,10 @@ href="https://wa.me/923352778488?text=Hello%20MUXI%20Trading%2C%20I%20want%20to%
             rel="noreferrer"
             className="sm:flex-1"
           >
-            <Button type="button" variant="outline" fullWidth>
-              WhatsApp Inquiry
-            </Button>
           </a>
         </div>
       </form>
     </div>
+    
   );
 }

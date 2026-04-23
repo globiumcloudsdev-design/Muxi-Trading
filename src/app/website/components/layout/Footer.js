@@ -39,7 +39,11 @@ export default function Footer() {
           <div className="animate-fade-in-up">
             <div className="flex items-center gap-3 mb-5 group">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25 group-hover:scale-110 transition-transform duration-300">
-                <Store className="h-6 w-6 text-white" />
+                <img
+                  src="/Muxi Trading Logo.png"
+                  alt="MUXI Trading Logo"
+                  className="w-8 h-8 object-contain bg-transparent"
+                />
               </div>
               <div>
                 <span className="text-xl font-bold">MUXI Trading</span>
@@ -56,8 +60,8 @@ export default function Footer() {
             <ul className="space-y-3 text-sm text-slate-400">
               {[
                 { name: 'Home', href: '/' },
-                { name: 'Categories', href: '/website/categories' },
-                { name: 'Contact', href: '/website#contact-us' },
+                { name: 'Categories', href: '/categories' },
+                { name: 'Contact', href: '/#contact-us' },
                 { name: 'Login', href: '/auth/login' },
               ].map((item) => (
                 <li key={item.name}>
@@ -81,7 +85,7 @@ export default function Footer() {
               {categories.slice(0, 6).map((category) => (
                 <li key={category.slug}>
                   <Link 
-                    href={`/website/categories/${category.slug}`} 
+                    href={`/categories/${category.slug}`} 
                     className="hover:text-blue-400 hover:translate-x-1 inline-flex items-center gap-2 transition-all duration-200"
                   >
                     <ArrowRight className="h-3 w-3" />

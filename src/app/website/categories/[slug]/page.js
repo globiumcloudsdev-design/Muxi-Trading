@@ -77,7 +77,7 @@ export default function CategoryDetailsPage() {
         <section className="pt-32 pb-20">
           <Container>
             <h1 className="text-3xl font-bold text-slate-900">Category not found</h1>
-            <Link href="/website/categories" className="text-blue-600 mt-4 inline-block">
+            <Link href="/categories" className="text-blue-600 mt-4 inline-block">
               Back to categories
             </Link>
           </Container>

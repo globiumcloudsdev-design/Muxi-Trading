@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ImagePlus, X, Upload } from 'lucide-react';
 
-export default function ItemForm({ item, categories, onSubmit, onCancel, isViewMode = false }) {
+export default function ItemForm({ item, categories, onSubmit, onCancel, isViewMode = false, onCategoryCreated }) {
   const [formData, setFormData] = useState({
     name: item?.name || '',
     productCode: item?.productCode || '',
@@ -31,6 +31,16 @@ export default function ItemForm({ item, categories, onSubmit, onCancel, isViewM
   );
   const [removedImageIds, setRemovedImageIds] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [localCategories, setLocalCategories] = useState(categories || []);
+  const [isCreatingCategory, setIsCreatingCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [newCategoryDescription, setNewCategoryDescription] = useState('');
+  const [creatingCategory, setCreatingCategory] = useState(false);
+  const [categoryError, setCategoryError] = useState('');
+
+  useEffect(() => {
+    setLocalCategories(categories || []);
+  }, [categories]);
 
   const formatPKR = (value) => {
     const numeric = Number(value || 0);
@@ -104,6 +114,50 @@ export default function ItemForm({ item, categories, onSubmit, onCancel, isViewM
     setLoading(false);
   };
 
+  const handleQuickCreateCategory = async () => {
+    if (!newCategoryName.trim()) {
+      setCategoryError('Category name is required');
+      return;
+    }
+
+    try {
+      setCreatingCategory(true);
+      setCategoryError('');
+      const token = localStorage.getItem('accessToken');
+      const payload = new FormData();
+      payload.append('name', newCategoryName.trim());
+      payload.append('description', newCategoryDescription.trim());
+      payload.append('isActive', 'true');
+
+      const response = await fetch('/api/categories', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: payload,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        setCategoryError(result.error || 'Unable to create category');
+        return;
+      }
+
+      const createdCategory = result.data;
+      setLocalCategories((prev) => [createdCategory, ...prev]);
+      setFormData((prev) => ({ ...prev, category: createdCategory._id }));
+      setIsCreatingCategory(false);
+      setNewCategoryName('');
+      setNewCategoryDescription('');
+      onCategoryCreated?.(createdCategory);
+    } catch (error) {
+      setCategoryError('Unable to create category right now');
+    } finally {
+      setCreatingCategory(false);
+    }
+  };
+
   return (
     <div className="max-h-[70vh] overflow-y-auto pr-2">
       <form onSubmit={isViewMode ? undefined : handleSubmit} className="space-y-4">
@@ -154,7 +208,7 @@ export default function ItemForm({ item, categories, onSubmit, onCancel, isViewM
               onValueChange={(value) => {
                 if (isViewMode) return;
                 if (value === '__add_categories__') {
-                  window.location.href = '/admin/categories';
+                  setIsCreatingCategory(true);
                   return;
                 }
 
@@ -171,14 +225,49 @@ export default function ItemForm({ item, categories, onSubmit, onCancel, isViewM
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="__select_category__">Select a category</SelectItem>
-                {categories.map((category) => (
+                {localCategories.map((category) => (
                   <SelectItem key={category._id} value={category._id}>
                     {category.name}
                   </SelectItem>
                 ))}
-                <SelectItem value="__add_categories__">+ Add Categories</SelectItem>
+                {!isViewMode && <SelectItem value="__add_categories__">+ Create Category Here</SelectItem>}
               </SelectContent>
             </Select>
+
+            {isCreatingCategory && !isViewMode && (
+              <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50/50 p-3 space-y-2">
+                <Label className="text-xs font-semibold text-blue-800">Quick Create Category</Label>
+                <Input
+                  placeholder="Category name"
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                />
+                <Textarea
+                  rows={2}
+                  placeholder="Category description (optional)"
+                  value={newCategoryDescription}
+                  onChange={(e) => setNewCategoryDescription(e.target.value)}
+                  className="resize-none"
+                />
+                {categoryError && <p className="text-xs text-red-600">{categoryError}</p>}
+                <div className="flex gap-2">
+                  <Button type="button" size="sm" onClick={handleQuickCreateCategory} disabled={creatingCategory}>
+                    {creatingCategory ? 'Creating...' : 'Create & Select'}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setIsCreatingCategory(false);
+                      setCategoryError('');
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="space-y-1">

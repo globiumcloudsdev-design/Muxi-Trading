@@ -5,6 +5,7 @@ import WebsiteLayout from '../components/layout/WebsiteLayout';
 import HeroSection from '../components/sections/HeroSection';
 import CategoriesPreviewSection from '../components/sections/CategoriesPreviewSection';
 import ProductsSection from '../components/sections/ProductsSection';
+import ContactSection from '../components/sections/ContactSection';
 import Loader from '@/components/common/Loader';
 import Button from '../components/ui/Button';
 import Container from '../components/layout/Container';
@@ -72,7 +73,7 @@ export default function AboutUsPage() {
       </div>
 
       {/* Products Section */}
-      <div className="relative">
+      {/* <div className="relative">
         <ProductsSection products={limitedProducts} categories={homeData.categories} />
         {!showAllProducts && homeData.products.length > 6 && (
           <Container className="pb-24 -mt-10 text-center relative z-10">
@@ -87,7 +88,7 @@ export default function AboutUsPage() {
             </Button>
           </Container>
         )}
-      </div>
+      </div> */}
 
       {/* About Us Content Section (Optional, added for context) */}
       <section id="about-content" className="py-24 bg-white">
@@ -105,6 +106,9 @@ export default function AboutUsPage() {
           </div>
         </Container>
       </section>
+
+      {/* Contact Section */}
+      <ContactSection />
     </WebsiteLayout>
   );
 }

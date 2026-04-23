@@ -7,7 +7,7 @@ export default function ProductCard({ product }) {
   const imageSrc = product?.image || '/Muxi Trading Logo.png';
 
   const handleCardClick = () => {
-    router.push(`/website/products/${product.code.toLowerCase()}`);
+    router.push(`/products/${product.code.toLowerCase()}`);
   };
 
   const handleInquiryClick = (event) => {

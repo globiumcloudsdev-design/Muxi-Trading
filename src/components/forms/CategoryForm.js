@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { ImagePlus, X } from 'lucide-react';
 
 export default function CategoryForm({ category, onSubmit, onCancel }) {
   const [formData, setFormData] = useState({
@@ -11,11 +12,31 @@ export default function CategoryForm({ category, onSubmit, onCancel }) {
     slug: category?.slug || '',
     description: category?.description || '',
     isActive: category?.isActive !== false, // default true
+    removeImage: false,
   });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(category?.image || '/Muxi Trading Logo.png');
+
+  const handleImageChange = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setImageFile(file);
+    setFormData((prev) => ({ ...prev, removeImage: false }));
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    onSubmit({
+      ...formData,
+      image: imageFile,
+    });
   };
 
   return (
@@ -45,6 +66,46 @@ export default function CategoryForm({ category, onSubmit, onCancel }) {
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           rows={3}
         />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="image">Category Image</Label>
+        <div className="flex items-center gap-3">
+          <div className="relative h-20 w-20 overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
+            <img
+              src={imagePreview}
+              alt="Category preview"
+              className="h-full w-full object-contain p-1"
+            />
+            {(imageFile || category?.image) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setImageFile(null);
+                  setImagePreview('/Muxi Trading Logo.png');
+                  setFormData((prev) => ({ ...prev, removeImage: true }));
+                }}
+                className="absolute right-0 top-0 rounded-full bg-red-500 p-0.5 text-white hover:bg-red-600"
+                aria-label="Remove image"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            )}
+          </div>
+
+          <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-gray-300 px-3 py-2 text-sm text-gray-600 hover:border-blue-400 hover:text-blue-600">
+            <ImagePlus className="h-4 w-4" />
+            Upload image
+            <input
+              id="image"
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="hidden"
+            />
+          </label>
+        </div>
+        <p className="text-xs text-gray-500">If no image is uploaded, the MUXI logo will appear as fallback on website cards.</p>
       </div>
 
       <div className="space-y-2">

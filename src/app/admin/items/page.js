@@ -83,6 +83,14 @@ export default function ItemsPage() {
     setTimeout(() => setMessage(''), 3000);
   };
 
+  const handleCategoryCreated = (createdCategory) => {
+    setCategories((prev) => {
+      const withoutDuplicate = prev.filter((item) => item._id !== createdCategory._id);
+      return [createdCategory, ...withoutDuplicate];
+    });
+    showMessage('Category created and selected!');
+  };
+
   const formatPKR = (value) => {
     const numeric = Number(value || 0);
     return `PKR ${numeric.toLocaleString('en-PK')}`;
@@ -380,6 +388,7 @@ export default function ItemsPage() {
         item={editingItem}
         categories={categories}
         onSubmit={handleSubmit}
+        onCategoryCreated={handleCategoryCreated}
       />
       <ItemModal
         isOpen={viewModalOpen}

@@ -88,7 +88,7 @@ export default function HeroSection() {
             </p>
 
             <div className="mt-8 flex flex-wrap gap-4 animate-fade-in-up stagger-2">
-              <Link href="/website/categories">
+              <Link href="/categories">
                 <Button size="lg" className="bg-amber-500 hover:bg-amber-600 border-0 text-white hover-lift">
                   View Categories
                   <ArrowRight className="ml-2 h-5 w-5" />
