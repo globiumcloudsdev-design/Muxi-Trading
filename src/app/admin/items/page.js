@@ -233,7 +233,7 @@ export default function ItemsPage() {
             <SearchBar onSearch={handleSearch} placeholder="Search items..." />
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="max-h-[63vh] overflow-y-auto pr-2">
           <DataTable
             data={items}
             columns={columns}

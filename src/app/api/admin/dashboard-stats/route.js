@@ -16,7 +16,7 @@ export async function GET(request) {
 
     await connectDB();
 
-    const [totalCategories, totalItems, totalStock, valueResult] = await Promise.all([
+    const [totalCategories, totalItems, totalStock, valueResult, recentCategories, lowStockItems] = await Promise.all([
       Category.countDocuments(),
       Item.countDocuments(),
       Item.aggregate([
@@ -30,6 +30,12 @@ export async function GET(request) {
           },
         },
       ]),
+      Category.find({ isActive: true }).sort({ createdAt: -1 }).limit(6).select('name slug createdAt'),
+      Item.find({ isActive: true, stock: { $lte: 10 } })
+        .sort({ stock: 1, createdAt: -1 })
+        .limit(6)
+        .populate('category', 'name')
+        .select('name productCode stock price category'),
     ]);
 
     return NextResponse.json({
@@ -39,6 +45,8 @@ export async function GET(request) {
         totalItems,
         totalStock: totalStock[0]?.total || 0,
         totalValue: valueResult[0]?.total || 0,
+        recentCategories,
+        lowStockItems,
       },
     });
   } catch (error) {

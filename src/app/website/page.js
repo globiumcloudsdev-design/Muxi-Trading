@@ -3,14 +3,9 @@
 import { useEffect, useState } from 'react';
 import WebsiteLayout from './components/layout/WebsiteLayout';
 import HeroSection from './components/sections/HeroSection';
-import FeaturesSection from './components/sections/FeaturesSection';
 import ProductsSection from './components/sections/ProductsSection';
-import CategoriesPreviewSection from './components/sections/CategoriesPreviewSection';
-import BrandSlider from './components/common/BrandSlider';
-import CatalogSection from './components/sections/CatalogSection';
-import ContactSection from './components/sections/ContactSection';
 import Loader from '@/components/common/Loader';
-// import ProcessSection from './components/sections/ProcessSection';
+
 
 export default function WebsiteHome() {
   const [homeData, setHomeData] = useState({ categories: [], products: [], brands: [] });
@@ -49,13 +44,7 @@ export default function WebsiteHome() {
   return (
     <WebsiteLayout>
       <HeroSection />
-      <CategoriesPreviewSection categories={homeData.categories} />
-      {/* <ProcessSection /> */}
-      <FeaturesSection />
       <ProductsSection products={homeData.products} categories={homeData.categories} />
-      {/* <BrandSlider brands={homeData.brands} /> */}
-      <CatalogSection />
-      <ContactSection />
     </WebsiteLayout>
   );
 }

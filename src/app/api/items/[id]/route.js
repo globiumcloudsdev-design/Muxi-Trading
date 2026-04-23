@@ -2,29 +2,31 @@ import { NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import { connectDB } from '@/lib/db';
 import Item from '@/models/Item';
-import cloudinary from '@/lib/cloudinary';
+import cloudinary, { ITEMS_FOLDER, deleteImage } from '@/lib/cloudinary';
 import { verifyAuth } from '@/lib/auth';
 
+async function uploadFile(file, folder) {
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  const upload = await new Promise((resolve, reject) => {
+    cloudinary.uploader.upload_stream(
+      { folder },
+      (err, result) => (err ? reject(err) : resolve(result))
+    ).end(buffer);
+  });
+
+  console.log(`Cloudinary upload success: ${upload.public_id}`);
+
+  return {
+    public_id: upload.public_id,
+    url: upload.secure_url,
+  };
+}
+
 async function uploadFiles(files, folder) {
-  const uploads = [];
-
-  for (const file of files) {
-    const buffer = Buffer.from(await file.arrayBuffer());
-
-    const upload = await new Promise((resolve, reject) => {
-      cloudinary.uploader.upload_stream(
-        { folder },
-        (err, result) => (err ? reject(err) : resolve(result))
-      ).end(buffer);
-    });
-
-    uploads.push({
-      public_id: upload.public_id,
-      url: upload.secure_url,
-    });
-  }
-
-  return uploads;
+  // Upload all files in parallel for better performance
+  const uploadPromises = files.map(file => uploadFile(file, folder));
+  return Promise.all(uploadPromises);
 }
 
 export async function GET(request, { params }) {
@@ -85,6 +87,8 @@ export async function PUT(request, { params }) {
     const isActive = formData.get('isActive');
     const thumbnailFile = formData.get('thumbnail');
     const imagesFiles = formData.getAll('images').filter(Boolean);
+    const removedImagesStr = formData.get('removedImages');
+    const removedImages = removedImagesStr ? JSON.parse(removedImagesStr) : [];
 
     const updateData = {
       name: name || existingItem.name,
@@ -99,15 +103,36 @@ export async function PUT(request, { params }) {
     };
 
     if (thumbnailFile && typeof thumbnailFile.arrayBuffer === 'function') {
-      const [uploadedThumbnail] = await uploadFiles([thumbnailFile], 'items/thumbnail');
+      // Delete old thumbnail from Cloudinary
+      if (existingItem.thumbnail?.public_id) {
+        await deleteImage(existingItem.thumbnail.public_id);
+      }
+      const [uploadedThumbnail] = await uploadFiles([thumbnailFile], ITEMS_FOLDER);
       updateData.thumbnail = uploadedThumbnail;
     }
 
-    if (imagesFiles.length > 0) {
-      updateData.images = await uploadFiles(imagesFiles, 'items/gallery');
+    // Handle image deletion - delete all specified images in parallel
+    if (removedImages.length > 0) {
+      await Promise.all(removedImages.map(publicId => deleteImage(publicId)));
     }
 
-    const updatedItem = await Item.findByIdAndUpdate(id, updateData, { new: true }).populate('category');
+    // Handle image uploads
+    if (imagesFiles.length > 0) {
+      const newImages = await uploadFiles(imagesFiles, ITEMS_FOLDER);
+      
+      // Keep existing images that weren't removed, and add new images
+      const remainingExistingImages = existingItem.images.filter(
+        img => !removedImages.includes(img.public_id)
+      );
+      updateData.images = [...remainingExistingImages, ...newImages];
+    } else if (removedImages.length > 0) {
+      // If only removing images without adding new ones, update the images array
+      updateData.images = existingItem.images.filter(
+        img => !removedImages.includes(img.public_id)
+      );
+    }
+
+    const updatedItem = await Item.findByIdAndUpdate(id, updateData, { returnDocument: 'after' }).populate('category');
 
     return NextResponse.json({ success: true, data: updatedItem });
   } catch (error) {
@@ -130,10 +155,26 @@ export async function DELETE(request, { params }) {
 
     await connectDB();
 
-    const deletedItem = await Item.findByIdAndDelete(id);
-    if (!deletedItem) {
+    const itemToDelete = await Item.findById(id);
+    if (!itemToDelete) {
       return NextResponse.json({ success: false, error: 'Item not found' }, { status: 404 });
     }
+
+    // Delete thumbnail from Cloudinary
+    if (itemToDelete.thumbnail?.public_id) {
+      await deleteImage(itemToDelete.thumbnail.public_id);
+    }
+
+    // Delete gallery images from Cloudinary
+    if (itemToDelete.images && itemToDelete.images.length > 0) {
+      for (const image of itemToDelete.images) {
+        if (image.public_id) {
+          await deleteImage(image.public_id);
+        }
+      }
+    }
+
+    const deletedItem = await Item.findByIdAndDelete(id);
 
     return NextResponse.json({ success: true, data: deletedItem });
   } catch (error) {

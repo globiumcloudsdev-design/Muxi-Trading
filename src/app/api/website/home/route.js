@@ -9,7 +9,7 @@ export async function GET() {
 
     const [categories, items, brands] = await Promise.all([
       Category.find({ isActive: true }).sort({ createdAt: -1 }),
-      Item.find({ isActive: true }).populate('category').sort({ createdAt: -1 }).limit(8),
+      Item.find({ isActive: true }).populate('category').sort({ createdAt: -1 }),
       Item.distinct('brand', { isActive: true, brand: { $exists: true, $ne: '' } }),
     ]);
 

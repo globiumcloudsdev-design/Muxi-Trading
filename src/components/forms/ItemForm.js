@@ -20,9 +20,15 @@ export default function ItemForm({ item, categories, onSubmit, onCancel }) {
   });
 
   const [thumbnail, setThumbnail] = useState(null);
-  const [thumbnailPreview, setThumbnailPreview] = useState(item?.thumbnail || null);
+  const [thumbnailPreview, setThumbnailPreview] = useState(item?.thumbnail?.url || item?.thumbnail || null);
   const [images, setImages] = useState([]);
-  const [imagePreviews, setImagePreviews] = useState(item?.images || []);
+  const [imagePreviews, setImagePreviews] = useState(
+    item?.images?.map(img => img?.url || img) || []
+  );
+  const [existingImages, setExistingImages] = useState(
+    item?.images?.map(img => ({ url: img?.url || img, public_id: img?.public_id })) || []
+  );
+  const [removedImageIds, setRemovedImageIds] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const handleThumbnailChange = (e) => {
@@ -48,11 +54,25 @@ export default function ItemForm({ item, categories, onSubmit, onCancel }) {
       };
       reader.readAsDataURL(file);
     });
+
+    // Clear the input value so the same file can be selected again
+    e.target.value = '';
   };
 
   const removeImage = (index) => {
-    setImages(images.filter((_, i) => i !== index));
-    setImagePreviews(imagePreviews.filter((_, i) => i !== index));
+    // Check if this is an existing image or a newly uploaded one
+    if (index < existingImages.length) {
+      // Removing existing image
+      const removedImage = existingImages[index];
+      setRemovedImageIds([...removedImageIds, removedImage.public_id]);
+      setExistingImages(existingImages.filter((_, i) => i !== index));
+      setImagePreviews(imagePreviews.filter((_, i) => i !== index));
+    } else {
+      // Removing newly uploaded image
+      const newImageIndex = index - existingImages.length;
+      setImages(images.filter((_, i) => i !== newImageIndex));
+      setImagePreviews(imagePreviews.filter((_, i) => i !== index));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -66,6 +86,11 @@ export default function ItemForm({ item, categories, onSubmit, onCancel }) {
     
     if (thumbnail) formDataToSend.append('thumbnail', thumbnail);
     images.forEach(img => formDataToSend.append('images', img));
+    
+    // Send removed image IDs to backend for deletion
+    if (removedImageIds.length > 0) {
+      formDataToSend.append('removedImages', JSON.stringify(removedImageIds));
+    }
     
     await onSubmit(formDataToSend);
     setLoading(false);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, Suspense } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Search, Sparkles, Layers3 } from 'lucide-react';
 import WebsiteLayout from '../components/layout/WebsiteLayout';
@@ -9,8 +9,7 @@ import { FadeIn, ScaleIn } from '../components/ui/animations.js';
 import CategoryCard from '../components/ui/CategoryCard';
 import Loader from '@/components/common/Loader';
 
-
-function CategoriesPageContent() {
+export default function CategoriesPage() {
   const searchParams = useSearchParams();
   const [categories, setCategories] = useState([]);
   const [search, setSearch] = useState('');
@@ -47,7 +46,7 @@ function CategoriesPageContent() {
   }, [categories, search]);
 
   return (
-    <>
+    <WebsiteLayout>
       <section className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_10%_15%,rgba(59,130,246,0.12),transparent_28%),radial-gradient(circle_at_90%_12%,rgba(14,165,233,0.12),transparent_24%),linear-gradient(180deg,#f8fbff_0%,#ffffff_45%,#f1f5f9_100%)] pt-32 pb-24">
         <div className="pointer-events-none absolute inset-0" aria-hidden="true">
           <div className="absolute -left-12 top-28 h-56 w-56 rounded-full border border-blue-200/60 bg-blue-200/20 blur-2xl animate-float" />
@@ -84,7 +83,7 @@ function CategoriesPageContent() {
 
           <FadeIn direction="up" delay={120} duration={0.65}>
             <div className="mx-auto mb-20 max-w-2xl [perspective:1000px]">
-              <div className="rounded-3xl border border-slate-200/70 bg-white/85 p-2 shadow-[0_18px_50px_rgba(15,23,42,0.08)] backdrop-blur-sm [transform-style:preserve-3d] transition-transform duration-500 hover:[transform:rotateX(4deg)_translateY(-2px)]">
+              <div className="rounded-3xl border border-slate-200/70 bg-white/85 p-2 shadow-[0_18px_50px_rgba(15,23,42,0.08)] backdrop-blur-sm [transform-style:preserve-3d] transition-transform duration-500  ">
                 <div className="relative">
                   <Search className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
                   <input
@@ -131,16 +130,6 @@ function CategoriesPageContent() {
           )}
         </Container>
       </section>
-    </>
-  );
-}
-
-export default function CategoriesPage() {
-  return (
-    <WebsiteLayout>
-      <Suspense>
-        <CategoriesPageContent />
-      </Suspense>
     </WebsiteLayout>
   );
 }

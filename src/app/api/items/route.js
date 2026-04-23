@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import Item from '@/models/Item';
-import cloudinary from '@/lib/cloudinary';
+import cloudinary, { ITEMS_FOLDER } from '@/lib/cloudinary';
 import { verifyAuth } from '@/lib/auth';
 
 async function uploadFiles(files, folder) {
@@ -114,12 +114,12 @@ export async function POST(req) {
     // Upload thumbnail
     let thumbnail = {};
     if (thumbnailFile) {
-      const [uploadedThumbnail] = await uploadFiles([thumbnailFile], 'items/thumbnail');
+      const [uploadedThumbnail] = await uploadFiles([thumbnailFile], ITEMS_FOLDER);
       thumbnail = uploadedThumbnail;
     }
 
     // Upload images
-    const images = await uploadFiles(imagesFiles.filter(Boolean), 'items/gallery');
+    const images = await uploadFiles(imagesFiles.filter(Boolean), ITEMS_FOLDER);
 
     const item = await Item.create({
       name,

@@ -13,7 +13,7 @@ const StatCard = ({ title, value, icon: Icon, color, trend }) => (
       <Icon className={`h-4 w-4 shrink-0 sm:h-5 sm:w-5 ${color}`} />
     </CardHeader>
     <CardContent>
-      <div className="break-words text-xl font-bold sm:text-2xl">{value}</div>
+      <div className="wrap-break-word text-xl font-bold sm:text-2xl">{value}</div>
       {trend && (
         <p className="text-xs text-green-600 mt-1">{trend}</p>
       )}
@@ -28,6 +28,8 @@ export default function DashboardPage() {
     totalCategories: 0,
     totalStock: 0,
     totalValue: 0,
+    recentCategories: [],
+    lowStockItems: [],
   });
 
   useEffect(() => {
@@ -82,8 +84,19 @@ export default function DashboardPage() {
           <CardHeader>
             <CardTitle>Recent Categories</CardTitle>
           </CardHeader>
-          <CardContent>
-            <EmptyState title="No categories yet" description="Create your first category to get started" />
+          <CardContent className="max-h-64 overflow-y-auto pr-2">
+            {statsData.recentCategories.length > 0 ? (
+              <div className="space-y-3">
+                {statsData.recentCategories.map((category) => (
+                  <div key={category._id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="font-semibold text-slate-900">{category.name}</p>
+                    <p className="text-xs text-slate-500">{new Date(category.createdAt).toLocaleDateString()}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <EmptyState title="No categories yet" description="Create your first category to get started" />
+            )}
           </CardContent>
         </Card>
 
@@ -91,8 +104,27 @@ export default function DashboardPage() {
           <CardHeader>
             <CardTitle>Low Stock Items</CardTitle>
           </CardHeader>
-          <CardContent>
-            <EmptyState title="No low stock items" description="All items are well stocked" />
+          <CardContent className="max-h-64 overflow-y-auto pr-2">
+            {statsData.lowStockItems.length > 0 ? (
+              <div className="space-y-3">
+                {statsData.lowStockItems.map((item) => (
+                  <div key={item._id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <p className="font-semibold text-slate-900">{item.name}</p>
+                        <p className="text-sm text-slate-500">{item.productCode}</p>
+                      </div>
+                      <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-red-700">
+                        Stock {item.stock}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500">Category: {item.category?.name || 'Uncategorized'}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <EmptyState title="No low stock items" description="All items are well stocked" />
+            )}
           </CardContent>
         </Card>
       </div>

@@ -203,7 +203,7 @@ export default function CategoriesPage() {
             <SearchBar onSearch={handleSearch} placeholder="Search categories..." />
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="max-h-[63vh] overflow-y-auto pr-2">
           <DataTable
             data={categories}
             columns={columns}
