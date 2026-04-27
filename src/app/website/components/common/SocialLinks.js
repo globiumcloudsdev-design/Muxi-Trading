@@ -1,6 +1,3 @@
-
-import { MessageCircle } from 'lucide-react';
-
 import { FaFacebook, FaInstagram } from 'react-icons/fa';
 import { MessageCircle } from 'lucide-react';
 

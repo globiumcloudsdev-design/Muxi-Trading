@@ -1,245 +1,290 @@
 'use client';
+
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, User, Search, Phone, Mail, MapPin, Clock } from 'lucide-react';
+import { motion, AnimatePresence, useScroll, useMotionValueEvent } from 'framer-motion';
+import { Menu, X, User, Search, ShoppingCart, Heart, Globe, ChevronDown } from 'lucide-react';
 import Image from 'next/image';
-import Container from './Container';
-import Button from '../ui/Button';
 
 const navItems = [
   { name: 'Home', href: '/' },
-  { name: 'Categories', href: '/categories' },
+  { name: 'Categories', href: '/categories', hasDropdown: true },
   { name: 'About Us', href: '/about' },
-{ name: 'Contact', href: '/contact' },
-
+  { name: 'Discount Offers', href: '/discount-offers' },
+  { name: 'Contact', href: '/contact' },
 ];
 
-
 export default function Header() {
+  const { scrollY } = useScroll();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [categories, setCategories] = useState([]);
   const pathname = usePathname();
-  const [searchQuery, setSearchQuery] = useState('');
+
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    setIsScrolled(latest > 50);
+  });
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 50);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const controller = new AbortController();
+
+    const loadCategories = async () => {
+      try {
+        const response = await fetch('/api/categories?limit=all', {
+          cache: 'no-store',
+          signal: controller.signal,
+        });
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          const sortedCategories = [...(result.data || [])].sort((left, right) => {
+            const leftDate = new Date(left.updatedAt || left.createdAt || 0).getTime();
+            const rightDate = new Date(right.updatedAt || right.createdAt || 0).getTime();
+            return rightDate - leftDate;
+          });
+
+          setCategories(sortedCategories.slice(0, 3));
+        }
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          console.error('Header categories fetch error:', error);
+        }
+      }
+    };
+
+    loadCategories();
+
+    return () => controller.abort();
   }, []);
 
-  const handleSearch = (e) => {
-    if (e.key === 'Enter' && searchQuery.trim()) {
-      // Redirect to search or categories
-      window.location.href = `/categories?search=${encodeURIComponent(searchQuery)}`;
-    }
-  };
+  const navbarBg = isScrolled 
+    ? 'bg-[#0d0e10]/90 backdrop-blur-xl border-[#896336]/30 shadow-[0_8px_30px_rgb(0,0,0,0.8)] shadow-[#896336]/10' 
+    : 'bg-transparent border-transparent';
 
   return (
-    <header
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
-        isScrolled 
-          ? 'bg-white/90 backdrop-blur-2xl shadow-lg shadow-blue-500/5' 
-          : 'bg-white/70 backdrop-blur-xl'
-      }`}
-    >
-      {/* Top gradient line */}
-      <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-600 via-purple-500 to-indigo-600" />
-      
-      <Container className="py-3 lg:py-4">
-        <div className="flex items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="group flex items-center gap-3 p-2 -ml-2 rounded-xl transition-all duration-300 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50">
-            <div className="relative">
+    <>
+      <header className="fixed top-0 left-0 w-full z-[100] px-4 py-4 md:px-8 transition-all duration-500 flex justify-center">
+        <motion.div 
+          className={`flex items-center justify-between w-full max-w-[1400px] border transition-all duration-500 rounded-full px-6 py-3 md:py-4 ${navbarBg}`}
+          initial={{ y: -100 }}
+          animate={{ y: 0 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+          style={{
+            width: isScrolled ? '95%' : '100%',
+          }}
+        >
+          {/* Left: Logo Section */}
+          <Link href="/" className="group flex items-center gap-3 relative z-10">
+            <div className="relative w-10 h-10 md:w-12 md:h-12 bg-white rounded-full flex items-center justify-center shadow-lg overflow-hidden group-hover:scale-105 transition-transform duration-300 border border-blue-100/20">
               <Image 
-                src="/Muxi Trading Logo.png" 
+                src="/images/logo.png" 
                 alt="MUXI Trading" 
-                width={44} 
-                height={44} 
-                className="rounded-xl shadow-lg group-hover:shadow-2xl group-hover:scale-110 transition-all duration-300" 
+                width={32} 
+                height={32} 
+                className="object-contain"
               />
-              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 bg-white/20 group-hover:opacity-100 opacity-0 mix-blend-overlay transition-opacity duration-300" />
             </div>
-            <div className="hidden lg:block">
-              <span className="font-bold text-xl bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                MUXI Trading
+            <div className="hidden sm:block">
+              <span className={`font-bold text-xl md:text-2xl tracking-tight transition-colors duration-300 ${isScrolled ? 'text-[#faf2b4]' : 'text-slate-950 drop-shadow-sm'}`}>
+                MUXI
               </span>
-              <p className="text-[10px] text-gray-400 -mt-1 tracking-wider">WHOLESALE & BULK</p>
+              <p className={`text-[9px] md:text-[10px] tracking-[0.2em] uppercase mt-[-2px] transition-colors duration-300 ${isScrolled ? 'text-[#a88148]' : 'text-slate-700'}`}>
+                Wholesale
+              </p>
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-1">
-            <nav className="flex items-center gap-1">
-{navItems.map((item) => {
-                const isContactOnHome = item.name === 'Contact' && pathname === '/';
-                return (
-                  <button
-                    key={item.name}
-                    onClick={(e) => {
-                      if (isContactOnHome) {
-                        e.preventDefault();
-                        document.getElementById('contact-us')?.scrollIntoView({ 
-                          behavior: 'smooth', 
-                          block: 'start' 
-                        });
-                      } else {
-                        window.location.href = item.href;
-                      }
-                    }}
-                    className={`relative px-4 py-2.5 rounded-full font-medium text-sm transition-all duration-300 group bg-transparent border-none cursor-pointer ${
-                      pathname === item.href || pathname.startsWith(item.href + (item.href.endsWith('/') ? '' : '/')) 
+          {/* Center: Desktop Navigation */}
+          <nav className="hidden lg:flex items-center gap-8 relative z-10">
+            {navItems.map((item) => {
+              const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
+              
+              return (
+                <div 
+                  key={item.name}
+                  className="relative group py-2"
+                  onMouseEnter={() => item.hasDropdown && setActiveDropdown(item.name)}
+                  onMouseLeave={() => item.hasDropdown && setActiveDropdown(null)}
+                >
+                  <Link 
+                    href={item.href}
+                    className={`flex items-center gap-1 font-semibold text-sm transition-colors duration-300 ${
+                      isActive 
+                        ? (isScrolled ? 'text-[#a88148]' : 'text-[#faf2b4]') 
+                        : (isScrolled ? 'text-slate-200 hover:text-[#faf2b4]' : 'text-slate-950 hover:text-[#a88148]')
                     }`}
                   >
                     {item.name}
-                    <span className={`absolute -bottom-0.5 left-1/2 -translate-x-1/2 rounded-full transition-all duration-300 ${
-                      pathname === item.href || pathname.startsWith(item.href + (item.href.endsWith('/') ? '' : '/')) 
-? 'w-0 h-0 bg-transparent' 
-                        : 'w-0 h-0.5 bg-blue-500/60 group-hover:w-full'
-                    }`} />
-                  </button>
-                );
-              })}
-            </nav>
-          </div>
+                    {item.hasDropdown && <ChevronDown className="w-4 h-4 transition-transform group-hover:rotate-180" />}
+                  </Link>
 
-          {/* Search Bar & Actions */}
-          <div className="hidden lg:flex items-center gap-4">
-            {/* Search Bar */}
-            {/* <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full blur-md opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={handleSearch}
-                className="relative pl-10 pr-4 py-2.5 w-56 bg-gray-50/80 border border-gray-200/60 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-300 focus:bg-white transition-all duration-200"
-              />
-            </div> */}
+                  {/* Active Indicator & Hover Glow */}
+                  <div className="absolute -bottom-1 left-0 w-full h-[2px] overflow-hidden rounded-full">
+                    <div className={`w-full h-full bg-gradient-to-r from-[#896336] to-[#a88148] transform transition-transform duration-300 origin-left ${isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
+                  </div>
 
-            {/* Desktop Actions */}
-            <div className="flex items-center gap-2">
-              <a
-href="https://wa.me/923352778488?text=Hello%20MUXI%20Trading%2C%20I%20need%20a%20wholesale%20quote."
-                target="_blank"
-                rel="noreferrer"
-              >
-                <Button 
-                  variant="secondary" 
-                  size="sm" 
-                  className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 rounded-full px-4"
-                >
-                  <svg className="w-4 h-4 mr-1.5" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                  </svg>
-                  WhatsApp
-                </Button>
-              </a>
-              <Link href="/auth/login">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="border-blue-200/60 hover:border-blue-400 hover:bg-blue-50/50 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 rounded-full px-4"
-                >
-                  <User className="h-4 w-4 mr-1.5" />
-                  Login
-                </Button>
+                  {/* Mega Dropdown for Categories */}
+                  {item.hasDropdown && (
+                    <AnimatePresence>
+                      {activeDropdown === item.name && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 15 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 15 }}
+                          transition={{ duration: 0.2 }}
+                          className="absolute top-full -left-1/2 pt-6 w-[600px] cursor-default"
+                        >
+                          <div className="bg-slate-900/95 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 shadow-2xl flex gap-6">
+                            <div className="flex-1 space-y-4">
+                              <h3 className="text-[#a88148] text-xs font-bold uppercase tracking-wider">Latest Categories</h3>
+                              <div className="grid grid-cols-1 gap-3">
+                                {categories.length > 0 ? (
+                                  categories.map((category) => (
+                                    <Link
+                                      key={category.slug}
+                                      href={`/categories/${category.slug}`}
+                                      className="text-white hover:text-[#faf2b4] text-sm flex items-center gap-2 group/cat"
+                                    >
+                                      <div className="w-1.5 h-1.5 rounded-full bg-[#896336] group-hover/cat:bg-[#faf2b4] transition-colors" />
+                                      {category.name}
+                                    </Link>
+                                  ))
+                                ) : (
+                                  <p className="text-sm text-slate-400">Loading categories...</p>
+                                )}
+                              </div>
+                              <Link href="/categories" className="inline-block mt-4 text-[#a88148] text-sm font-semibold hover:underline underline-offset-4">
+                                See more categories →
+                              </Link>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  )}
+                </div>
+              );
+            })}
+          </nav>
+
+          {/* Right: Actions */}
+          <div className="flex items-center gap-3 md:gap-5 relative z-10">
+            {/* Search */}
+            <div className={`flex items-center transition-all duration-300 rounded-full ${isSearchOpen ? 'bg-white/10 px-3 py-1.5 border border-white/20' : ''}`}>
+              <button onClick={() => setIsSearchOpen(!isSearchOpen)} className={`p-2 rounded-full transition-colors ${isScrolled ? 'text-[#faf2b4] hover:text-white hover:bg-white/10' : 'text-slate-950 hover:text-[#a88148] hover:bg-slate-100'}`}>
+                <Search className="w-5 h-5" />
+              </button>
+              <AnimatePresence>
+                {isSearchOpen && (
+                  <motion.input
+                    initial={{ width: 0, opacity: 0 }}
+                    animate={{ width: 150, opacity: 1 }}
+                    exit={{ width: 0, opacity: 0 }}
+                    placeholder="Search..."
+                    className="bg-transparent border-none outline-none text-sm px-2 text-[#faf2b4] placeholder:text-[#a88148]/50 w-[150px]"
+                    autoFocus
+                  />
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Icons */}
+            <div className="hidden md:flex items-center gap-2">
+              <button className={`p-2 rounded-full transition-colors ${isScrolled ? 'text-[#faf2b4] hover:text-white hover:bg-white/10' : 'text-slate-950 hover:text-[#a88148] hover:bg-slate-100'}`}>
+                <Globe className="w-5 h-5" />
+              </button>
+              <button className={`p-2 rounded-full transition-colors ${isScrolled ? 'text-[#faf2b4] hover:text-white hover:bg-white/10' : 'text-slate-950 hover:text-[#a88148] hover:bg-slate-100'}`}>
+                <Heart className="w-5 h-5" />
+              </button>
+              <Link href="/auth/login" className={`p-2 rounded-full transition-colors ${isScrolled ? 'text-[#faf2b4] hover:text-white hover:bg-white/10' : 'text-slate-950 hover:text-[#a88148] hover:bg-slate-100'}`}>
+                <User className="w-5 h-5" />
               </Link>
             </div>
-          </div>
 
-          {/* Mobile & Tablet Menu Button */}
-          <div className="flex lg:hidden items-center gap-2">
-            <a
-href="https://wa.me/923352778488?text=Hello%20MUXI%20Trading%2C%20I%20need%20a%20wholesale%20quote."
-              target="_blank"
-              rel="noreferrer"
-              className="p-2.5 rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-110 transition-all duration-300"
+            {/* Cart */}
+            <Link href="/cart" className={`relative p-2 rounded-full transition-colors ${isScrolled ? 'text-[#faf2b4] hover:text-white hover:bg-white/10' : 'text-slate-950 hover:text-[#a88148] hover:bg-slate-100'}`}>
+              <ShoppingCart className="w-5 h-5" />
+              <motion.span 
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="absolute 0 top-0 right-0 w-4 h-4 bg-[#896336] text-[#faf2b4] text-[9px] font-bold flex items-center justify-center rounded-full shadow-lg shadow-[#896336]/50"
+              >
+                0
+              </motion.span>
+            </Link>
+
+
+            {/* Mobile Menu Toggle */}
+            <button 
+              className={`lg:hidden p-2 rounded-full transition-colors ${isScrolled ? 'text-white bg-white/10' : 'text-slate-950 bg-slate-100'}`}
+              onClick={() => setIsMobileMenuOpen(true)}
             >
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-              </svg>
-            </a>
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2.5 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-110 transition-all duration-300"
-            >
-              {isMobileMenuOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
+              <Menu className="w-5 h-5" />
             </button>
           </div>
-        </div>
+        </motion.div>
+      </header>
 
-  
-
-        {/* Mobile Navigation */}
+      {/* Mobile Menu Drawer */}
+      <AnimatePresence>
         {isMobileMenuOpen && (
-          <div className="lg:hidden absolute top-full left-0 w-full">
-            <div className="bg-white/95 backdrop-blur-2xl border-t border-gray-100 shadow-2xl shadow-blue-500/10">
-              <div className="py-6 px-6 space-y-3">
-                {/* Mobile Search */}
-                {/* <div className="relative mb-4">
-                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search products..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={handleSearch}
-                    className="w-full pl-10 pr-4 py-3 bg-gray-50/80 border border-gray-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-300 focus:bg-white transition-all duration-200"
-                  />
-                </div> */}
-                
-{navItems.map((item) => {
-                  const isContactOnHome = item.name === 'Contact' && pathname === '/';
-                  return (
-                    <button
-                      key={item.name}
-                      onClick={() => {
-                        setIsMobileMenuOpen(false);
-                        if (isContactOnHome) {
-                          document.getElementById('contact-us')?.scrollIntoView({ 
-                            behavior: 'smooth', 
-                            block: 'start' 
-                          });
-                        } else {
-                          window.location.href = item.href;
-                        }
-                      }}
-                      className={`flex items-center justify-between py-3.5 px-4 rounded-xl font-medium transition-all duration-200 w-full text-left ${
-                        pathname === item.href || pathname.startsWith(item.href + (item.href.endsWith('/') ? '' : '/')) 
-                          ? 'bg-blue-50/50 text-blue-700 border border-blue-400 shadow-md shadow-blue-200/50 translate-x-1' 
-                          : 'text-gray-700 hover:bg-blue-50 hover:translate-x-1 hover:shadow-md'
-                      }`}
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[101]"
+            />
+            <motion.div 
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed top-0 left-0 h-screen w-[85%] max-w-[320px] bg-slate-900 z-[102] border-r border-slate-800 flex flex-col"
+            >
+              <div className="p-6 flex items-center justify-between border-b border-slate-800">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+                    <Image src="/images/logo.png" alt="MUXI" width={24} height={24} />
+                  </div>
+                  <span className="font-bold text-white text-lg tracking-wide">MUXI Trading</span>
+                </div>
+                <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 bg-slate-800 rounded-full text-slate-400 hover:text-white">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto py-6 px-4 space-y-2">
+                {navItems.map(item => (
+                  <div key={item.name}>
+                    <Link 
+                      href={item.href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={`block w-full px-4 py-3 text-lg font-medium rounded-xl transition-colors ${pathname === item.href ? 'bg-blue-600/20 text-blue-400' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
                     >
                       {item.name}
-                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </button>
-                  );
-                })}
-                <div className="pt-4 border-t border-gray-100 space-y-3">
-                  <Link
-                    href="/auth/login"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 hover:scale-[1.02] transition-all duration-200"
-                  >
-                    <User className="h-5 w-5" />
-                    Login / Register
-                  </Link>
-                </div>
+                    </Link>
+                  </div>
+                ))}
               </div>
-            </div>
-          </div>
+
+              <div className="p-6 border-t border-slate-800 space-y-4">
+                <Link href="/auth/login" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-slate-800 text-white font-semibold">
+                  <User className="w-5 h-5" /> Login / Register
+                </Link>
+                <a href="https://wa.me/923352778488" className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold shadow-lg shadow-blue-900/50">
+                  Contact Sales
+                </a>
+              </div>
+            </motion.div>
+          </>
         )}
-      </Container>
-    </header>
+      </AnimatePresence>
+    </>
   );
 }
-

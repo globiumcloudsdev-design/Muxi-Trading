@@ -8,6 +8,33 @@ import Container from '../../components/layout/Container';
 import ProductCard from '../../components/ui/ProductCard';
 import Loader from '@/components/common/Loader';
 
+function applyDiscountToProducts(products, discountOffer) {
+  if (!discountOffer) return products;
+  return products.map((product) => {
+    let discountedPrice = product.price;
+    let discountAmount = 0;
+    if (discountOffer.discountType === 'percentage') {
+      discountAmount = (product.price * discountOffer.discountValue) / 100;
+      discountedPrice = product.price - discountAmount;
+    } else if (discountOffer.discountType === 'fixed') {
+      discountAmount = discountOffer.discountValue;
+      discountedPrice = Math.max(0, product.price - discountAmount);
+    }
+    return {
+      ...product,
+      originalPrice: product.price,
+      price: discountedPrice,
+      discountApplied: {
+        type: discountOffer.discountType,
+        value: discountOffer.discountValue,
+        offerName: discountOffer.offerTitle,
+        endDate: discountOffer.endDate,
+        couponCode: discountOffer.couponCode,
+      },
+    };
+  });
+}
+
 export default function CategoryDetailsPage() {
   const params = useParams();
   const slug = params?.slug;
@@ -35,15 +62,32 @@ export default function CategoryDetailsPage() {
         const categoriesResult = await categoriesResponse.json();
         const subcategoriesResult = await subcategoriesResponse.json();
 
-        if (productsResponse.ok && productsResult.success) {
-          setProducts(productsResult.data || []);
+        let matchedCategory = null;
+        if (categoriesResponse.ok && categoriesResult.success) {
+          matchedCategory = (categoriesResult.data || []).find((item) => item.slug === slug);
+          setCategory(matchedCategory || null);
+          setNotFound(!matchedCategory);
         }
 
-        if (categoriesResponse.ok && categoriesResult.success) {
-          const matched = (categoriesResult.data || []).find((item) => item.slug === slug);
-          setCategory(matched || null);
-          setNotFound(!matched);
+        let fetchedProducts = [];
+        if (productsResponse.ok && productsResult.success) {
+          fetchedProducts = productsResult.data || [];
         }
+
+        // Check if category has an active discount offer
+        if (matchedCategory?.discountOfferId) {
+          try {
+            const discountRes = await fetch(`/api/discount-offers/${matchedCategory.discountOfferId}`, { cache: 'no-store' });
+            const discountResult = await discountRes.json();
+            if (discountResult.success && discountResult.data?.isActive) {
+              fetchedProducts = applyDiscountToProducts(fetchedProducts, discountResult.data);
+            }
+          } catch (e) {
+            console.error('Failed to fetch discount for category:', e);
+          }
+        }
+
+        setProducts(fetchedProducts);
 
         if (subcategoriesResult.success) {
           setSubcategories(subcategoriesResult.data || []);

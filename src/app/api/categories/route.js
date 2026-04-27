@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import Category from '@/models/Category';
+import DiscountOffer from '@/models/DiscountOffer';
 import { verifyAuth } from '@/lib/auth';
 import cloudinary from '@/lib/cloudinary';
 
@@ -42,7 +43,7 @@ export async function GET(request) {
 
     const [categories, totalCount] = await Promise.all([
       (async () => {
-        const finder = Category.find(query).sort({ createdAt: -1 });
+        const finder = Category.find(query).sort({ updatedAt: -1 });
         if (!isAll) {
           finder.skip(skip).limit(limit);
         }
@@ -91,6 +92,7 @@ export async function POST(request) {
     let description;
     let isActive;
     let imageFile;
+    let discountOfferId = null;
 
     if (contentType.includes('multipart/form-data')) {
       const formData = await request.formData();
@@ -98,12 +100,14 @@ export async function POST(request) {
       description = formData.get('description');
       isActive = formData.get('isActive') !== 'false';
       imageFile = formData.get('image');
+      discountOfferId = formData.get('discountOfferId') || null;
     } else {
       const body = await request.json();
       name = body?.name;
       description = body?.description;
       isActive = body?.isActive !== undefined ? body.isActive : true;
       imageFile = null;
+      discountOfferId = body.discountOfferId || null;
     }
 
     if (!name || name.trim() === '') {
@@ -130,12 +134,29 @@ export async function POST(request) {
       image = await uploadCategoryImage(imageFile);
     }
 
+    if (discountOfferId) {
+      const discountOffer = await DiscountOffer.findById(discountOfferId);
+      if (!discountOffer) {
+        return NextResponse.json(
+          { success: false, error: 'Discount offer not found' },
+          { status: 400 }
+        );
+      }
+      if (discountOffer.status !== 'active') {
+        return NextResponse.json(
+          { success: false, error: 'Cannot assign: Discount offer is not active' },
+          { status: 400 }
+        );
+      }
+    }
+
     const category = await Category.create({
       name: name.trim(),
       slug,
       description: description || null,
       isActive: isActive !== undefined ? isActive : true,
       image,
+      discountOfferId: discountOfferId || null,
     });
 
     return NextResponse.json(

@@ -107,6 +107,7 @@ export async function PUT(request, { params }) {
     let isActive;
     let imageFile;
     let removeImage = false;
+    let discountOfferId = null;
 
     if (contentType.includes('multipart/form-data')) {
       const formData = await request.formData();
@@ -115,6 +116,10 @@ export async function PUT(request, { params }) {
       isActive = formData.get('isActive') !== 'false';
       imageFile = formData.get('image');
       removeImage = formData.get('removeImage') === 'true';
+      
+      if (formData.has('discountOfferId')) {
+        discountOfferId = formData.get('discountOfferId');
+      }
     } else {
       const body = await request.json();
       name = body?.name;
@@ -122,6 +127,10 @@ export async function PUT(request, { params }) {
       isActive = body?.isActive;
       imageFile = null;
       removeImage = body?.removeImage === true;
+      
+      if (body?.discountOfferId !== undefined) {
+        discountOfferId = body.discountOfferId;
+      }
     }
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -170,6 +179,33 @@ export async function PUT(request, { params }) {
     if (description !== undefined) updateData.description = description;
     if (isActive !== undefined) updateData.isActive = isActive;
     if (removeImage) updateData.image = null;
+    
+    if (discountOfferId !== null) {
+      if (discountOfferId === '' || discountOfferId === null) {
+        updateData.discountOfferId = null;
+      } else {
+        if (!mongoose.Types.ObjectId.isValid(discountOfferId)) {
+          return NextResponse.json(
+            { success: false, error: 'Invalid discount offer ID' },
+            { status: 400 }
+          );
+        }
+        const discountOffer = await DiscountOffer.findById(discountOfferId);
+        if (!discountOffer) {
+          return NextResponse.json(
+            { success: false, error: 'Discount offer not found' },
+            { status: 404 }
+          );
+        }
+        if (discountOffer.status !== 'active') {
+          return NextResponse.json(
+            { success: false, error: 'Cannot assign: Discount offer is not active' },
+            { status: 400 }
+          );
+        }
+        updateData.discountOfferId = discountOfferId;
+      }
+    }
 
     if (imageFile && typeof imageFile.arrayBuffer === 'function' && imageFile.size > 0) {
       updateData.image = await uploadCategoryImage(imageFile);

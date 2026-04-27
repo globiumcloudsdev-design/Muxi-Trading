@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import WebsiteLayout from '../components/layout/WebsiteLayout';
-import HeroSection from '../components/sections/HeroSection';
+import AboutHeroSection from '../components/sections/AboutHeroSection';
 import CategoriesPreviewSection from '../components/sections/CategoriesPreviewSection';
 import ProductsSection from '../components/sections/ProductsSection';
+import CompanyInfoSection from '../components/sections/CompanyInfoSection';
 import ContactSection from '../components/sections/ContactSection';
 import Loader from '@/components/common/Loader';
 import Button from '../components/ui/Button';
@@ -52,7 +53,9 @@ export default function AboutUsPage() {
 
   return (
     <WebsiteLayout>
-      <HeroSection />
+      <AboutHeroSection />
+
+      <CompanyInfoSection />
       
       {/* Categories Section */}
       <div className="relative">
@@ -89,23 +92,6 @@ export default function AboutUsPage() {
           </Container>
         )}
       </div> */}
-
-      {/* About Us Content Section (Optional, added for context) */}
-      <section id="about-content" className="py-24 bg-white">
-        <Container>
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-8">About MUXI Trading</h2>
-            <p className="text-lg text-slate-600 mb-6 leading-relaxed">
-              MUXI Trading is a premier wholesale supplier dedicated to providing high-quality products across multiple categories. 
-              Our mission is to bridge the gap between manufacturers and businesses by offering competitive pricing and reliable delivery.
-            </p>
-            <p className="text-lg text-slate-600 leading-relaxed">
-              With a focus on customer satisfaction and quality assurance, we have established ourselves as a trusted partner for retailers, 
-              distributors, and institutional buyers globally.
-            </p>
-          </div>
-        </Container>
-      </section>
 
       {/* Contact Section */}
       <ContactSection />

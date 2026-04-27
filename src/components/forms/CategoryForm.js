@@ -1,21 +1,33 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ImagePlus, X } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-export default function CategoryForm({ category, onSubmit, onCancel }) {
+const getInitialFormData = (category) => ({
+  name: category?.name || '',
+  slug: category?.slug || '',
+  description: category?.description || '',
+  isActive: category?.isActive !== false,
+  removeImage: false,
+  discountOfferId: category?.discountOfferId || null,
+});
+
+export default function CategoryForm({ category, discountOffers = [], onSubmit, onCancel }) {
   const [formData, setFormData] = useState({
-    name: category?.name || '',
-    slug: category?.slug || '',
-    description: category?.description || '',
-    isActive: category?.isActive !== false, // default true
-    removeImage: false,
+    ...getInitialFormData(category),
   });
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(category?.image || '/Muxi Trading Logo.png');
+
+  useEffect(() => {
+    setFormData(getInitialFormData(category));
+    setImageFile(null);
+    setImagePreview(category?.image || '/Muxi Trading Logo.png');
+  }, [category]);
 
   const handleImageChange = (event) => {
     const file = event.target.files?.[0];
@@ -39,6 +51,8 @@ export default function CategoryForm({ category, onSubmit, onCancel }) {
     });
   };
 
+  const availableOffers = discountOffers.filter(o => o && o.status === 'active');
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
@@ -54,7 +68,6 @@ export default function CategoryForm({ category, onSubmit, onCancel }) {
           }}
           required
         />
-
       </div>
       
       <div className="space-y-2">
@@ -132,6 +145,41 @@ export default function CategoryForm({ category, onSubmit, onCancel }) {
           <span>Active Category</span>
         </Label>
       </div>
+
+      <div className="space-y-4 border-t pt-4">
+        <h3 className="font-semibold text-lg">Discount Offer Assignment</h3>
+        <p className="text-sm text-gray-600">
+          Categories inherit discounts from assigned Discount Offers (centralized management).
+        </p>
+
+        <div className="space-y-2">
+          <Label>Select Discount Offer</Label>
+          <Select
+            value={formData.discountOfferId || 'none'}
+            onValueChange={(value) => setFormData({ ...formData, discountOfferId: value === 'none' ? null : value })}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select a discount offer..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">None (no discount)</SelectItem>
+              {availableOffers.map((offer) => (
+                <SelectItem key={offer._id} value={offer._id}>
+                  {offer.offerTitle || offer.offerName}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {formData.discountOfferId && (
+            <div className="mt-2 rounded-lg border border-green-200 bg-green-50/50 p-3">
+              <p className="text-xs font-semibold text-green-800 mb-1">Discount will be applied</p>
+              <p className="text-xs text-green-700">
+                All products in this category will automatically inherit the selected discount pricing.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
       
       <div className="flex gap-2 pt-4">
         <Button type="submit" className="flex-1">
@@ -144,3 +192,4 @@ export default function CategoryForm({ category, onSubmit, onCancel }) {
     </form>
   );
 }
+

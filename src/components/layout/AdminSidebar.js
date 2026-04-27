@@ -3,13 +3,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { LayoutDashboard, Package, FolderTree, LogOut, X } from 'lucide-react';
+import { LayoutDashboard, Package, FolderTree, LogOut, X, Tag } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 const menuItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/categories', label: 'Categories', icon: FolderTree },
   { href: '/admin/items', label: 'Items', icon: Package },
+  { href: '/admin/discount-offers', label: 'Discount Offers', icon: Tag },
 ];
 
 export default function AdminSidebar({ mobileOpen = false, onClose = () => {} }) {

@@ -3,9 +3,10 @@
 import { useEffect, useState } from 'react';
 import WebsiteLayout from './components/layout/WebsiteLayout';
 import HeroSection from './components/sections/HeroSection';
-import ProductsSection from './components/sections/ProductsSection';
+import PromotionalBanners from './components/sections/PromotionalBanners';
+import CompanyInfoSection from './components/sections/CompanyInfoSection';
+import CategoryShowcase from './components/sections/CategoryShowcase';
 import ContactSection from './components/sections/ContactSection';
-import Loader from '@/components/common/Loader';
 
 
 export default function WebsiteHome() {
@@ -36,7 +37,6 @@ export default function WebsiteHome() {
     return (
       <WebsiteLayout>
         <section className="min-h-screen flex items-center justify-center">
-          <Loader />
         </section>
       </WebsiteLayout>
     );
@@ -45,8 +45,12 @@ export default function WebsiteHome() {
   return (
     <WebsiteLayout>
       <HeroSection />
-      
-      <ProductsSection products={homeData.products} categories={homeData.categories} />
+
+      {/* <PromotionalBanners /> */}
+
+      <CategoryShowcase products={homeData.products} categories={homeData.categories} />
+
+      <CompanyInfoSection />
 
     </WebsiteLayout>
   );

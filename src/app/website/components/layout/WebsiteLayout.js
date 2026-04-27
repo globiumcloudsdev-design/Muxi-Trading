@@ -1,6 +1,7 @@
 import Header from './Header';
 import Footer from './Footer';
 import WhatsAppFloat from '../common/WhatsAppFloat';
+import DiscountModal from '@/components/common/DiscountModal';
 
 export default function WebsiteLayout({ children }) {
   return (
@@ -12,6 +13,7 @@ export default function WebsiteLayout({ children }) {
       </main>
       <Footer />
       <WhatsAppFloat />
+      <DiscountModal />
     </>
   );
 }

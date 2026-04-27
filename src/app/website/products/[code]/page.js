@@ -76,7 +76,7 @@ export default function ProductDetailsPage() {
 
   return (
     <WebsiteLayout>
-      <section className="pt-32 pb-20 bg-slate-50 min-h-screen">
+      <section className="pt-24 pb-16 bg-slate-50 min-h-screen">
         <Container>
           <div className="grid lg:grid-cols-2 gap-10">
             <div className="space-y-4">
@@ -109,20 +109,52 @@ export default function ProductDetailsPage() {
               <h1 className="text-3xl font-bold text-slate-900 mb-3">{product.name}</h1>
               <p className="text-slate-600 mb-2">Pack Size: {product.packSize}</p>
               {product.showPrice && (
-                <p className="text-2xl font-bold text-blue-700 mb-4">
-                  PKR {product.price?.toLocaleString() || 0}
-                </p>
+                <div className="mb-4">
+                  {product.discountApplied ? (
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <span className="text-lg font-semibold text-slate-400 line-through">
+                        PKR {(product.originalPrice || product.price)?.toLocaleString()}
+                      </span>
+                      <span className="text-3xl font-black text-red-600">
+                        PKR {product.price?.toLocaleString()}
+                      </span>
+                      <span className="text-sm font-bold text-white bg-gradient-to-r from-red-500 to-orange-500 px-3 py-1 rounded-full">
+                        {product.discountApplied.type === 'percentage'
+                          ? `${product.discountApplied.value}% OFF`
+                          : `-Rs. ${product.discountApplied.value}`}
+                      </span>
+                    </div>
+                  ) : (
+                    <p className="text-2xl font-bold text-blue-700">
+                      PKR {product.price?.toLocaleString() || 0}
+                    </p>
+                  )}
+                </div>
               )}
               <p className="text-slate-600 leading-relaxed mb-6">{product.description}</p>
 
-              <a
-href={`https://wa.me/923352778488?text=Hello%20MUXI%20Trading%2C%20I%20need%20quote%20for%20${encodeURIComponent(product.name)}%20(${product.code})`}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center justify-center rounded-lg bg-green-500 px-5 py-3 text-white font-medium hover:bg-green-600 transition-colors"
-              >
-                WhatsApp Inquiry
-              </a>
+              <div className="flex flex-wrap gap-3">
+                <a
+                  href={`https://wa.me/923352778488?text=Hello%20MUXI%20Trading%2C%20I%20need%20quote%20for%20${encodeURIComponent(product.name)}%20(${product.code})`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center justify-center rounded-xl bg-green-500 px-5 py-3 text-white font-medium hover:bg-green-600 transition-colors shadow-sm"
+                >
+                  WhatsApp Inquiry
+                </a>
+                <button
+                  className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-5 py-3 text-white font-medium hover:bg-blue-700 transition-colors shadow-sm shadow-blue-500/30"
+                  onClick={() => alert('Added to cart successfully!')}
+                >
+                  Add to Cart
+                </button>
+                <Link
+                  href="/cart"
+                  className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-5 py-3 text-white font-medium hover:bg-slate-800 transition-colors shadow-sm"
+                >
+                  Buy Now / Checkout
+                </Link>
+              </div>
             </div>
           </div>
         </Container>

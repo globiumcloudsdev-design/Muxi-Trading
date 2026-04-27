@@ -12,6 +12,7 @@ import { API } from '@/lib/api/end-point';
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState([]);
+  const [discountOffers, setDiscountOffers] = useState([]);
   const [pagination, setPagination] = useState({});
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -60,9 +61,29 @@ export default function CategoriesPage() {
     }
   }, [currentPage, pageSize, searchTerm, showMessage]);
 
+  const fetchDiscountOffers = useCallback(async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch(`${API.base}/admin/discount-offers?limit=all&includeInactive=true`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+        cache: 'no-store'
+      });
+      const data = await response.json();
+      if (data.success) {
+        setDiscountOffers(data.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching discount offers:', error);
+    }
+  }, []);
+
   useEffect(() => {
     fetchCategories();
   }, [fetchCategories]);
+
+  useEffect(() => {
+    fetchDiscountOffers();
+  }, [fetchDiscountOffers]);
 
 // No client-side filtering needed - server-side handles search
 
@@ -82,12 +103,32 @@ export default function CategoriesPage() {
     },
     { key: 'name', label: 'Name', className: 'font-medium' },
     { key: 'slug', label: 'Slug' },
-    { 
-      key: 'description', 
-      label: 'Description', 
+    {
+      key: 'description',
+      label: 'Description',
+      className: 'max-w-xs',
       render: (item) => {
         const desc = (item.description || '').trim();
         return desc.length > 50 ? `${desc.substring(0, 50)}...` : desc || '-';
+      }
+    },
+    {
+      key: 'discountOffer',
+      label: 'Discount',
+      render: (item) => {
+        if (!item.discountOfferId) {
+          return <span className="text-xs text-gray-400">None</span>;
+        }
+        const doffer = item.discountOffer || item;
+        if (!doffer.offerName && !doffer.offerTitle) {
+          return <span className="text-xs text-gray-400">None</span>;
+        }
+        const label = doffer.offerName || doffer.offerTitle || 'Discount';
+        return (
+          <span className="text-xs px-2 py-1 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-700 border border-amber-500/30">
+            {label}
+          </span>
+        );
       }
     },
     { key: 'isActive', label: 'Status', render: (item) => (
@@ -117,6 +158,7 @@ export default function CategoriesPage() {
       payload.append('name', data.name || '');
       payload.append('description', data.description || '');
       payload.append('isActive', String(data.isActive !== false));
+      payload.append('discountOfferId', data.discountOfferId || '');
 
       if (data.image instanceof File) {
         payload.append('image', data.image);
@@ -139,6 +181,7 @@ export default function CategoriesPage() {
       if (response.ok && result.success) {
         showMessage(editingCategory ? 'Category updated!' : 'Category created!');
         fetchCategories();
+        fetchDiscountOffers();
         setModalOpen(false);
         setEditingCategory(null);
       } else {
@@ -240,7 +283,8 @@ export default function CategoriesPage() {
             columns={columns}
             pagination={pagination}
             onEdit={(category) => {
-              setEditingCategory(category);
+    const matchingDiscount = discountOffers.find((item) => item._id === category.discountOfferId);
+              setEditingCategory(matchingDiscount ? { ...category, discountOffer: matchingDiscount } : category);
               setModalOpen(true);
             }}
             onDelete={handleDeleteClick}
@@ -260,6 +304,7 @@ export default function CategoriesPage() {
         isOpen={modalOpen}
         onClose={() => { setModalOpen(false); setEditingCategory(null); }}
         category={editingCategory}
+        discountOffers={discountOffers}
         onSubmit={handleSubmit}
       />
 

@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Menu } from 'lucide-react';
+import Loader from '@/components/common/Loader';
 
 function ProtectedLayout({ children }) {
   const { isAuthenticated, loading } = useAuth();
@@ -17,11 +18,7 @@ function ProtectedLayout({ children }) {
   }, [isAuthenticated, loading, router]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
+    return <Loader />;
   }
 
   if (!isAuthenticated) {
